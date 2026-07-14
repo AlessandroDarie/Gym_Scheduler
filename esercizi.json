@@ -1,0 +1,101 @@
+{
+  "esercizi_palestra": {
+    "gambe": [
+      "squat",
+      "v-squat",
+      "pressa 45 gradi",
+      "pressa iso-lateral",
+      "leg extension",
+      "standing leg curl",
+      "kneeling leg curl",
+      "affondi",
+      "standing gluteus",
+      "adductor",
+      "abductor",
+      "calf machine",
+      "multipower",
+      "stacchi",
+      "pendulum squat"
+    ],
+    "petto": [
+      "panca piana",
+      "panca inclinata",
+      "panca declinata",
+      "horizontal press",
+      "dip machine",
+      "pec fly",
+      "chest press incline",
+      "chest press",
+      "croci su panca piana",
+      "croci su panca inclinata",
+      "croci su panca declinata",
+      "distensioni manubri",
+      "pullover",
+      "croci ai cavi",
+      "parallele"
+    ],
+    "spalle": [
+      "distensioni manubri",
+      "military press",
+      "shoulder press",
+      "delts",
+      "rowing torso",
+      "aperture laterali",
+      "alzate frontali",
+      "alzate busto a 90 gradi",
+      "tirate ai cavi"
+    ],
+    "dorso": [
+      "sbarra",
+      "easy power station",
+      "lat machine",
+      "pulley basso",
+      "vertical row",
+      "low row",
+      "pulldown",
+      "high row",
+      "d.y. row",
+      "t-bar",
+      "rematore",
+      "mezzi stacchi",
+      "pullover"
+    ],
+    "tricipiti": [
+      "french press",
+      "french press manubri",
+      "manubrio dietro la nuca",
+      "busto 90 gradi",
+      "push down",
+      "piegamenti parallele",
+      "flessioni tra due panche"
+    ],
+    "bicipiti": [
+      "curl bilanciere",
+      "curl panca a 55 gradi",
+      "curl",
+      "curl ercolina",
+      "panca scott",
+      "arm curl"
+    ],
+    "addominali_e_lombari": [
+      "sit up",
+      "crunch",
+      "ginocchia al petto",
+      "panca per hyperextension",
+      "parallele",
+      "lower body torso",
+      "ab crunch bench",
+      "contrazioni isometriche",
+      "steady state",
+      "single leg plank"
+    ],
+    "riscaldamento": [
+      "cyclette",
+      "tapis roulant"
+    ],
+    "post_allenamento": [
+      "cyclette",
+      "tapis roulant"
+    ]
+  }
+}

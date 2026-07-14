@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Schede Palestra</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+        
+        /* Navbar */
+        nav { background: var(--card-bg); padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 800px; margin: 0 auto; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        nav button { background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text); cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; transition: background 0.2s; }
+        nav button:hover, nav button.active { background: var(--primary); color: white; }
+
+        /* Main Content */
+        main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Typography & Utilities */
+        h1, h2, h3 { margin-bottom: 1rem; }
+        .btn { background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-small { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+        
+        input, select { padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; width: 100%; margin-bottom: 0.5rem; }
+        
+        /* Cards */
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .workout-card { border-left: 4px solid var(--primary); background: #f9fafb; padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
+        .exercise-row { display: grid; grid-template-columns: 1fr; gap: 0.5rem; background: white; padding: 1rem; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; }
+        
+        @media (min-width: 600px) {
+            .exercise-row { grid-template-columns: 2fr 2fr 1fr 1fr 1fr auto; align-items: center; }
+            input, select { margin-bottom: 0; }
+        }
+
+        .scheda-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: white; flex-wrap: wrap; gap: 1rem; }
+        .scheda-actions { display: flex; gap: 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <button onclick="navigate('home')" id="nav-home" class="active">Home</button>
+            <button onclick="navigate('gestione')" id="nav-gestione">Le Mie Schede</button>
+            <button onclick="creaNuovaScheda()" id="nav-editor">Crea Nuova Scheda</button>
+        </div>
+    </nav>
+
+    <main>
+        <section id="view-home" class="view active card">
+            <h1>Benvenuto nel tuo Gestore Schede</h1>
+            <p>Utilizza il menu in alto per navigare. Puoi creare nuove schede di allenamento, personalizzare gli esercizi, le serie e i recuperi, e visualizzare o modificare quelle già create.</p>
+            <br>
+            <button class="btn" onclick="creaNuovaScheda()">Inizia creando una scheda</button>
+        </section>
+
+        <section id="view-gestione" class="view card">
+            <h2>Le Mie Schede</h2>
+            <div id="lista-schede"></div>
+        </section>
+
+        <section id="view-dettaglio" class="view card">
+            <button class="btn btn-small" onclick="navigate('gestione')" style="margin-bottom: 1rem;">&larr; Torna alla lista</button>
+            <div id="dettaglio-content"></div>
+        </section>
+
+        <section id="view-editor" class="view card">
+            <h2 id="editor-title">Crea Nuova Scheda</h2>
+            <input type="hidden" id="scheda-id">
+            
+            <div style="margin-bottom: 1rem;">
+                <label><strong>Nome Scheda:</strong></label>
+                <input type="text" id="scheda-nome" placeholder="Es: Ipertrofia Base, Forza 5x5..." required>
+            </div>
+
+            <div id="editor-allenamenti"></div>
+
+            <button class="btn" style="margin-top: 1rem; border: 2px dashed var(--primary); background: transparent; color: var(--primary); width: 100%; font-weight: bold;" onclick="aggiungiGiorno()">
+                + Aggiungi Giorno di Allenamento
+            </button>
+
+            <button class="btn" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem; background: #16a34a;" onclick="salvaScheda()">
+                💾 Salva Scheda
+            </button>
+        </section>
+    </main>
+
+    <script>
+        // 1. DATABASE ESERCIZI
+        const eserciziDB = {
+            "gambe": ["squat", "v-squat", "pressa 45 gradi", "pressa iso-lateral", "leg extension", "standing leg curl", "affondi", "standing gluteus", "adductor", "abductor", "calf machine", "multipower", "stacchi", "pendulum squat"],
+            "petto": ["panca piana", "panca inclinata", "panca declinata", "horizontal press", "dip machine", "pec fly", "chest press incline", "chest press", "croci su panca piana", "croci su panca inclinata", "croci su panca declinata", "distensioni manubri", "pullover", "croci ai cavi", "parallele"],
+            "spalle": ["distensioni manubri", "military press", "delts", "rowing torso", "aperture laterali", "alzate busto a 90 gradi", "tirate ai cavi"],
+            "dorso": ["sbarra", "easy power station", "lat machine", "pulley basso", "vertical row", "low row", "pulldown", "high row", "d.y. row", "t-bar", "rematore", "mezzi stacchi", "pullover"],
+            "tricipiti": ["french press", "french press manubri", "manubrio dietro la nuca", "busto 90 gradi", "push down", "piegamenti parallele", "flessioni tra due panche"],
+            "bicipiti": ["curl bilanciere", "curl panca a 55 gradi", "curl", "curl ercolina", "panca scott", "arm curl"],
+            "addominali_e_lombari": ["sit up", "crunch", "ginocchia al petto", "panca per hyperextension", "parallele", "lower body torso", "ab crunch bench", "contrazioni isometriche", "steady state", "single leg plank"],
+            "riscaldamento": ["cyclette", "tapis roulant"],
+            "post_allenamento": ["cyclette", "tapis roulant"]
+        };
+
+        // 2. LOGICA DI STATO (localStorage)
+        let schede = JSON.parse(localStorage.getItem('schedePalestra')) || [];
+
+        function salvaDati() {
+            localStorage.setItem('schedePalestra', JSON.stringify(schede));
+        }
+
+        // 3. NAVIGAZIONE
+        function navigate(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            if(document.getElementById(`nav-${viewName}`)) {
+                document.getElementById(`nav-${viewName}`).classList.add('active');
+            }
+
+            if(viewName === 'gestione') renderListaSchede();
+        }
+
+        // 4. LOGICA DI INIZIALIZZAZIONE E EDITOR
+        function creaNuovaScheda() {
+            pulisciEditor();
+            navigate('editor');
+        }
+
+        function pulisciEditor() {
+            document.getElementById('scheda-id').value = '';
+            document.getElementById('scheda-nome').value = '';
+            document.getElementById('editor-allenamenti').innerHTML = '';
+            document.getElementById('editor-title').innerText = 'Crea Nuova Scheda';
+            aggiungiGiorno(); 
+        }
+
+        function aggiungiGiorno(giornoEsistente = null) {
+            const container = document.getElementById('editor-allenamenti');
+            const dayDiv = document.createElement('div');
+            const uniqueId = 'day-' + Date.now() + Math.floor(Math.random() * 1000);
+            dayDiv.className = 'workout-card';
+            
+            dayDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 class="day-title">Allenamento</h3>
+                    <button class="btn btn-danger btn-small" onclick="this.closest('.workout-card').remove(); aggiornaTitoliGiorni();">🗑️ Elimina Giorno</button>
+                </div>
+                <div class="esercizi-container" id="${uniqueId}"></div>
+                <button class="btn btn-small" style="margin-top: 0.5rem;" onclick="aggiungiEsercizioUI('${uniqueId}')">+ Aggiungi Esercizio</button>
+            `;
+            
+            container.appendChild(dayDiv);
+            aggiornaTitoliGiorni();
+
+            if (giornoEsistente && giornoEsistente.esercizi) {
+                giornoEsistente.esercizi.forEach(es => {
+                    aggiungiEsercizioUI(uniqueId, es);
+                });
+            }
+        }
+
+        function aggiornaTitoliGiorni() {
+            const giorni = document.querySelectorAll('#editor-allenamenti .workout-card .day-title');
+            giorni.forEach((titolo, index) => {
+                titolo.innerText = `Allenamento ${index + 1}`;
+            });
+        }
+
+        function aggiungiEsercizioUI(containerId, datiEsistenti = null) {
+            const container = document.getElementById(containerId);
+            const row = document.createElement('div');
+            row.className = 'exercise-row';
+
+            let categorieOptions = '<option value="">Seleziona Gruppo</option>';
+            for(let cat in eserciziDB) {
+                categorieOptions += `<option value="${cat}" ${datiEsistenti && datiEsistenti.categoria === cat ? 'selected' : ''}>${cat.toUpperCase().replace(/_/g, ' ')}</option>`;
+            }
+
+            row.innerHTML = `
+                <select class="sel-cat" onchange="aggiornaEsercizi(this)">${categorieOptions}</select>
+                <select class="sel-es">
+                    <option value="">Seleziona Esercizio</option>
+                </select>
+                <input type="number" class="inp-serie" placeholder="Serie" min="1" value="${datiEsistenti ? datiEsistenti.serie : ''}">
+                <input type="number" class="inp-rip" placeholder="Ripetizioni" min="1" value="${datiEsistenti ? datiEsistenti.ripetizioni : ''}">
+                <input type="text" class="inp-rec" placeholder="Recupero (es. 90s)" value="${datiEsistenti ? datiEsistenti.recupero : ''}">
+                <button class="btn btn-danger btn-small" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(row);
+
+            if(datiEsistenti) {
+                aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
+            }
+        }
+
+        function aggiornaEsercizi(selectCategoria, esercizioPreselezionato = null) {
+            const categoria = selectCategoria.value;
+            const selectEsercizio = selectCategoria.parentElement.querySelector('.sel-es');
+            selectEsercizio.innerHTML = '<option value="">Seleziona Esercizio</option>';
+            
+            if(categoria && eserciziDB[categoria]) {
+                eserciziDB[categoria].forEach(es => {
+                    const selected = esercizioPreselezionato === es ? 'selected' : '';
+                    selectEsercizio.innerHTML += `<option value="${es}" ${selected}>${es}</option>`;
+                });
+            }
+        }
+
+        // CORREZIONE CRITICA: Selettore limitato a #editor-allenamenti per evitare interferenze
+        function salvaScheda() {
+            const id = document.getElementById('scheda-id').value || Date.now().toString();
+            const nome = document.getElementById('scheda-nome').value.trim();
+            
+            if(!nome) {
+                alert("Inserisci il nome della scheda.");
+                return;
+            }
+
+            const allenamenti = [];
+            const giorniNodes = document.querySelectorAll('#editor-allenamenti .workout-card'); // <--- FIX
+            
+            giorniNodes.forEach((node, index) => {
+                const esercizi = [];
+                const righeEsercizi = node.querySelectorAll('.exercise-row');
+                
+                righeEsercizi.forEach(riga => {
+                    const categoria = riga.querySelector('.sel-cat').value;
+                    const esercizio = riga.querySelector('.sel-es').value;
+                    const serie = riga.querySelector('.inp-serie').value;
+                    const ripetizioni = riga.querySelector('.inp-rip').value;
+                    const recupero = riga.querySelector('.inp-rec').value;
+
+                    if(categoria && esercizio) {
+                        esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero });
+                    }
+                });
+                
+                allenamenti.push({ giorno: index + 1, esercizi });
+            });
+
+            const nuovaScheda = { id, nome, allenamenti };
+
+            const index = schede.findIndex(s => s.id === id);
+            if(index > -1) {
+                schede[index] = nuovaScheda;
+            } else {
+                schede.push(nuovaScheda);
+            }
+
+            salvaDati();
+            alert("Scheda salvata con successo!");
+            navigate('gestione');
+        }
+
+        // 5. GESTIONE LISTA AZIONI
+        function renderListaSchede() {
+            const container = document.getElementById('lista-schede');
+            container.innerHTML = '';
+
+            if(schede.length === 0) {
+                container.innerHTML = '<p>Nessuna scheda presente. Creane una nuova!</p>';
+                return;
+            }
+
+            schede.forEach(scheda => {
+                const div = document.createElement('div');
+                div.className = 'scheda-item';
+                div.innerHTML = `
+                    <div><strong>${scheda.nome}</strong> (${scheda.allenamenti.length} allenamenti)</div>
+                    <div class="scheda-actions">
+                        <button class="btn btn-small" onclick="mostraDettaglio('${scheda.id}')">👁️ Visualizza</button>
+                        <button class="btn btn-small" style="background:#ca8a04;" onclick="modificaScheda('${scheda.id}')">✏️ Modifica</button>
+                        <button class="btn btn-danger btn-small" onclick="eliminaScheda('${scheda.id}')">🗑️ Elimina</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function mostraDettaglio(id) {
+            const scheda = schede.find(s => s.id === id);
+            if(!scheda) return;
+
+            const container = document.getElementById('dettaglio-content');
+            let html = `<h2>${scheda.nome}</h2>`;
+
+            scheda.allenamenti.forEach(all => {
+                html += `<div class="workout-card">
+                            <h3>Allenamento ${all.giorno}</h3>
+                            <table style="width:100%; border-collapse: collapse; margin-top:0.5rem; text-align:left;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border);">
+                                        <th>Esercizio</th><th>Serie</th><th>Rip.</th><th>Recupero</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                
+                all.esercizi.forEach(es => {
+                    html += `<tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.5rem 0;">${es.esercizio} <small style="color:#6b7280; display:block;">${es.categoria.replace(/_/g, ' ')}</small></td>
+                                <td>${es.serie || '-'}</td>
+                                <td>${es.ripetizioni || '-'}</td>
+                                <td>${es.recupero || '-'}</td>
+                             </tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+            });
+
+            container.innerHTML = html;
+            navigate('dettaglio');
+        }
+
+        function modificaScheda(id) {
+            const scheda = schede.find(s => s.id === id);
+            if(!scheda) return;
+
+            document.getElementById('editor-title').innerText = `Modifica Scheda: ${scheda.nome}`;
+            document.getElementById('scheda-id').value = scheda.id;
+            document.getElementById('scheda-nome').value = scheda.nome;
+            
+            document.getElementById('editor-allenamenti').innerHTML = '';
+
+            scheda.allenamenti.forEach(all => {
+                aggiungiGiorno(all);
+            });
+
+            navigate('editor');
+        }
+
+        function eliminaScheda(id) {
+            if(confirm("Sei sicuro di voler eliminare questa scheda? L'azione è irreversibile.")) {
+                schede = schede.filter(s => s.id !== id);
+                salvaDati();
+                renderListaSchede();
+            }
+        }
+    </script>
+</body>
+</html>
