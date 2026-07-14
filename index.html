@@ -43,12 +43,16 @@
         
         /* Navbar */
         nav { background: var(--card-bg); padding: 1rem; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-        .nav-container { max-width: 800px; margin: 0 auto; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .nav-container { max-width: 800px; margin: 0 auto; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .nav-utils { display: flex; gap: 0.5rem; justify-content: center; align-items: center; }
+        
         nav button { background: none; border: none; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 0.6rem 1rem; border-radius: 8px; transition: all 0.2s; }
         nav button:hover { color: var(--text); background: var(--input-bg); }
         nav button.active { background: var(--primary); color: white; }
         
-        #theme-toggle { margin-left: auto; font-size: 1.2rem; padding: 0.5rem; border-radius: 50%; background: var(--input-bg); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+        .nav-utils button { font-size: 1.2rem; padding: 0.5rem; border-radius: 50%; background: var(--input-bg); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+        .nav-utils button:hover { background: var(--border); color: var(--text); }
 
         /* Main Content */
         main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
@@ -78,8 +82,18 @@
         
         /* Cards */
         .card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1.5rem; border: 1px solid var(--border); }
-        .workout-card { border-left: 4px solid var(--primary); background: var(--input-bg); padding: 1.5rem; margin-bottom: 1rem; border-radius: 0 var(--radius) var(--radius) 0; }
         
+        .workout-card { 
+            background: var(--input-bg); 
+            padding: 1.5rem; 
+            margin-bottom: 1rem; 
+            border-radius: 0 var(--radius) var(--radius) 0;
+            border-left: 4px solid var(--primary); 
+        }
+        
+        .active-exercise { border-left-color: var(--danger); transition: border-left-color 0.3s ease; }
+        .active-exercise.completed { border-left-color: var(--success); }
+
         .exercise-row { display: grid; grid-template-columns: 1fr; gap: 0.75rem; background: var(--card-bg); padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         @media (min-width: 600px) {
             .exercise-row { grid-template-columns: 2fr 2fr 1fr 1fr 1fr auto; align-items: center; }
@@ -90,8 +104,6 @@
         .scheda-item:hover { transform: scale(1.01); border-color: var(--primary); }
         .scheda-actions { display: flex; gap: 0.5rem; }
         
-        /* Stili per l'esecuzione attiva */
-        .active-exercise { border-left-color: var(--success); }
         .input-inline { width: 80px; text-align: center; display: inline-block; margin: 0; padding: 0.5rem; font-weight: 600; }
         .input-inline::placeholder { font-weight: bold; color: var(--primary); opacity: 0.5; }
         .table-esegui { width: 100%; border-collapse: separate; border-spacing: 0 0.5rem; }
@@ -106,19 +118,40 @@
         .badge { background: var(--border); color: var(--text-muted); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; display: inline-block; margin-top: 0.25rem; }
         .badge-history { background: var(--primary); color: white; margin-left: auto; }
 
-        /* Timer Bottoni */
         .timer-btn { transition: all 0.2s; min-width: 90px; }
+
+        /* MODALE CUSTOM (Sostituisce gli Alert/Confirm) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 0; transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card {
+            background: var(--card-bg); padding: 2rem; border-radius: var(--radius);
+            box-shadow: var(--shadow); width: 90%; max-width: 420px;
+            transform: translateY(20px); transition: transform 0.2s ease;
+            border: 1px solid var(--border);
+        }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="nav-container">
-            <button onclick="navigate('home')" id="nav-home" class="active">Home</button>
-            <button onclick="navigate('gestione')" id="nav-gestione">Le Mie Schede</button>
-            <button onclick="creaNuovaScheda()" id="nav-editor">Crea Nuova</button>
-            <button onclick="navigate('storico')" id="nav-storico">Diario</button>
-            <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema">🌙</button>
+            <div class="nav-links">
+                <button onclick="navigate('home')" id="nav-home" class="active">Home</button>
+                <button onclick="navigate('gestione')" id="nav-gestione">Le Mie Schede</button>
+                <button onclick="creaNuovaScheda()" id="nav-editor">Crea Nuova</button>
+                <button onclick="navigate('storico')" id="nav-storico">Diario</button>
+            </div>
+            <div class="nav-utils">
+                <button id="fs-toggle" onclick="toggleFullScreen()" title="Schermo Intero">⛶</button>
+                <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema">🌙</button>
+            </div>
         </div>
     </nav>
 
@@ -179,14 +212,82 @@
         </section>
     </main>
 
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="modal-title" style="margin-top: 0;">Conferma</h3>
+            <p id="modal-msg" style="margin-bottom: 0;">Sei sicuro?</p>
+            <div class="modal-actions">
+                <button id="modal-btn-cancel" class="btn btn-outline">Annulla</button>
+                <button id="modal-btn-confirm" class="btn">Conferma</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 0. TEMA LOGIC E GESTIONE TIMER GLOBALI
+        // --- MOTORE MODALI ASINCRONI ---
+        function customConfirm(message, title = "Attenzione", confirmText = "Conferma", confirmClass = "btn-danger") {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('custom-modal');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerText = message;
+                
+                const btnCancel = document.getElementById('modal-btn-cancel');
+                const btnConfirm = document.getElementById('modal-btn-confirm');
+                
+                btnCancel.style.display = "inline-flex";
+                btnConfirm.innerText = confirmText;
+                btnConfirm.className = `btn ${confirmClass}`;
+
+                overlay.classList.add('active');
+
+                const handleResolve = (val) => {
+                    overlay.classList.remove('active');
+                    btnCancel.removeEventListener('click', onCancel);
+                    btnConfirm.removeEventListener('click', onConfirm);
+                    resolve(val);
+                };
+
+                const onCancel = () => handleResolve(false);
+                const onConfirm = () => handleResolve(true);
+
+                btnCancel.addEventListener('click', onCancel);
+                btnConfirm.addEventListener('click', onConfirm);
+            });
+        }
+
+        function customAlert(message, title = "Avviso") {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('custom-modal');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerText = message;
+                
+                const btnCancel = document.getElementById('modal-btn-cancel');
+                const btnConfirm = document.getElementById('modal-btn-confirm');
+                
+                btnCancel.style.display = "none";
+                btnConfirm.innerText = "OK";
+                btnConfirm.className = "btn btn-primary";
+
+                overlay.classList.add('active');
+
+                const handleResolve = () => {
+                    overlay.classList.remove('active');
+                    btnConfirm.removeEventListener('click', onConfirm);
+                    resolve(true);
+                };
+
+                const onConfirm = () => handleResolve();
+                btnConfirm.addEventListener('click', onConfirm);
+            });
+        }
+
+        // --- TEMA E FULLSCREEN ---
         const themeToggle = document.getElementById('theme-toggle');
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', currentTheme);
         themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
 
-        let activeTimers = {}; // Registro globale per abbattere i timer orfani
+        let activeTimers = {};
 
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -196,15 +297,25 @@
             themeToggle.innerText = newTheme === 'dark' ? '☀️' : '🌙';
         }
 
-        // Killa tutti i timer attivi quando esci dalla modalità allenamento
-        function pulisciTimerAttivi() {
-            for (let id in activeTimers) {
-                clearInterval(activeTimers[id]);
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+                else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
+                else if (document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen();
+                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
+        }
+
+        function pulisciTimerAttivi() {
+            for (let id in activeTimers) clearInterval(activeTimers[id]);
             activeTimers = {};
         }
 
-        // Estrae logicamente i secondi da stringhe scritte male (es "1m 30s", "90", "90s")
         function parseTempoRecupero(str) {
             if(!str) return 0;
             let s = str.toLowerCase();
@@ -217,10 +328,8 @@
                 if(matchS) sec += parseInt(matchS[1]);
                 return sec;
             }
-            // Fallback: se l'utente ha scritto solo numeri
             let nums = s.match(/\d+/);
             if(nums) return parseInt(nums[0]);
-            
             return 0;
         }
 
@@ -228,11 +337,7 @@
             const secondiTotali = parseTempoRecupero(tempoStr);
             if (secondiTotali <= 0) return;
 
-            // Se clicchi mentre è già attivo, resetta
-            if (activeTimers[timerId]) {
-                clearInterval(activeTimers[timerId]);
-            }
-
+            if (activeTimers[timerId]) clearInterval(activeTimers[timerId]);
             let rimanenti = secondiTotali;
             
             btn.style.color = "var(--primary)";
@@ -255,7 +360,6 @@
                     btn.style.color = "var(--success)";
                     btn.style.borderColor = "var(--success)";
                     
-                    // Ritorna allo stato originale dopo 5 secondi
                     setTimeout(() => {
                         if (document.body.contains(btn)) {
                             btn.innerText = "⏱️ Timer";
@@ -269,7 +373,22 @@
             }, 1000);
         }
 
-        // 1. DATABASE ESERCIZI
+        function verificaCompletamento(inputElement) {
+            const bloccoEsercizio = inputElement.closest('.active-exercise');
+            const righe = bloccoEsercizio.querySelectorAll('tbody tr');
+            let tuttoCompilato = true;
+
+            righe.forEach(riga => {
+                const kgValue = riga.querySelector('.exec-kg').value.trim();
+                const ripValue = riga.querySelector('.exec-rip').value.trim();
+                if (kgValue === "" || ripValue === "") tuttoCompilato = false;
+            });
+
+            if (tuttoCompilato) bloccoEsercizio.classList.add('completed');
+            else bloccoEsercizio.classList.remove('completed');
+        }
+
+        // --- DATABASE E STATO ---
         const eserciziDB = {
             "gambe": ["squat", "v-squat", "pressa 45 gradi", "pressa iso-lateral", "leg extension", "standing leg curl", "kneeling leg curl", "affondi", "standing gluteus", "adductor", "abductor", "calf machine", "multipower", "stacchi", "pendulum squat"],
             "petto": ["panca piana", "panca inclinata", "panca declinata", "horizontal press", "dip machine", "pec fly", "chest press incline", "chest press", "croci su panca piana", "croci su panca inclinata", "croci su panca declinata", "distensioni manubri", "pullover", "croci ai cavi", "parallele"],
@@ -282,16 +401,14 @@
             "post_allenamento": ["cyclette", "tapis roulant"]
         };
 
-        // 2. LOGICA DI STATO
         let schede = JSON.parse(localStorage.getItem('schedePalestra')) || [];
         let diario = JSON.parse(localStorage.getItem('diarioPalestra')) || [];
 
         function salvaDati() { localStorage.setItem('schedePalestra', JSON.stringify(schede)); }
         function salvaDiario() { localStorage.setItem('diarioPalestra', JSON.stringify(diario)); }
 
-        // 3. NAVIGAZIONE
+        // --- LOGICA ---
         function navigate(viewName) {
-            // Se usciamo dalla vista esecuzione, distruggiamo tutti i timer attivi
             if(document.getElementById('view-esegui').classList.contains('active') && viewName !== 'esegui') {
                 pulisciTimerAttivi();
             }
@@ -299,7 +416,7 @@
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
             
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
             if(document.getElementById(`nav-${viewName}`)) {
                 document.getElementById(`nav-${viewName}`).classList.add('active');
             }
@@ -309,7 +426,6 @@
             window.scrollTo(0, 0);
         }
 
-        // 4. EDITOR
         function creaNuovaScheda() {
             pulisciEditor();
             navigate('editor');
@@ -350,9 +466,7 @@
 
         function aggiornaTitoliGiorni() {
             const giorni = document.querySelectorAll('#editor-allenamenti .workout-card .day-title');
-            giorni.forEach((titolo, index) => {
-                titolo.innerText = `Sessione ${index + 1}`;
-            });
+            giorni.forEach((titolo, index) => { titolo.innerText = `Sessione ${index + 1}`; });
         }
 
         function aggiungiEsercizioUI(containerId, datiEsistenti = null) {
@@ -375,9 +489,7 @@
             `;
             container.appendChild(row);
 
-            if(datiEsistenti) {
-                aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
-            }
+            if(datiEsistenti) aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
         }
 
         function aggiornaEsercizi(selectCategoria, esercizioPreselezionato = null) {
@@ -393,42 +505,35 @@
             }
         }
 
-        function salvaScheda() {
+        async function salvaScheda() {
             const id = document.getElementById('scheda-id').value || Date.now().toString();
             const nome = document.getElementById('scheda-nome').value.trim();
             
-            if(!nome) { alert("Inserisci il nome della scheda."); return; }
+            if(!nome) { await customAlert("Compila il nome della scheda per procedere."); return; }
 
             const allenamenti = [];
-            const giorniNodes = document.querySelectorAll('#editor-allenamenti .workout-card'); 
-            
-            giorniNodes.forEach((node, index) => {
+            document.querySelectorAll('#editor-allenamenti .workout-card').forEach((node, index) => {
                 const esercizi = [];
-                const righeEsercizi = node.querySelectorAll('.exercise-row');
-                
-                righeEsercizi.forEach(riga => {
+                node.querySelectorAll('.exercise-row').forEach(riga => {
                     const categoria = riga.querySelector('.sel-cat').value;
                     const esercizio = riga.querySelector('.sel-es').value;
                     const serie = riga.querySelector('.inp-serie').value;
                     const ripetizioni = riga.querySelector('.inp-rip').value;
                     const recupero = riga.querySelector('.inp-rec').value;
 
-                    if(categoria && esercizio) {
-                        esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero });
-                    }
+                    if(categoria && esercizio) esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero });
                 });
                 allenamenti.push({ giorno: index + 1, esercizi });
             });
 
             const nuovaScheda = { id, nome, allenamenti };
             const index = schede.findIndex(s => s.id === id);
-            if(index > -1) { schede[index] = nuovaScheda; } else { schede.push(nuovaScheda); }
+            if(index > -1) schede[index] = nuovaScheda; else schede.push(nuovaScheda);
 
             salvaDati();
             navigate('gestione');
         }
 
-        // 5. GESTIONE LISTA
         function renderListaSchede() {
             const container = document.getElementById('lista-schede');
             container.innerHTML = '';
@@ -464,7 +569,7 @@
             let html = `<h2 style="font-size: 1.5rem;">${scheda.nome}</h2>`;
 
             scheda.allenamenti.forEach(all => {
-                html += `<div class="workout-card">
+                html += `<div class="workout-card" style="border-left-color: var(--primary);">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <h3 style="margin:0;">Sessione ${all.giorno}</h3>
                                 <button class="btn btn-primary btn-small" onclick="iniziaAllenamento('${scheda.id}', ${all.giorno})">▶ Avvia Workout</button>
@@ -501,15 +606,15 @@
             navigate('editor');
         }
 
-        function eliminaScheda(id) {
-            if(confirm("Eliminare questa scheda in modo permanente?")) {
+        async function eliminaScheda(id) {
+            const confermato = await customConfirm("Eliminare questa scheda in modo permanente?", "Azione Irreversibile");
+            if(confermato) {
                 schede = schede.filter(s => s.id !== id);
                 salvaDati();
                 renderListaSchede();
             }
         }
 
-        // 6. ESECUZIONE CON MEMORIA UNIVERSALE SELETTIVA E TIMER
         function iniziaAllenamento(schedaId, giornoId) {
             const scheda = schede.find(s => s.id === schedaId);
             const allenamento = scheda.allenamenti.find(a => a.giorno === giornoId);
@@ -526,7 +631,6 @@
                 let numSerie = parseInt(es.serie) || 1;
                 let targetRip = es.ripetizioni || '';
                 
-                // RICERCA STORICO SELETTIVA
                 let esStorico = null;
                 let dataStorico = null;
                 
@@ -536,7 +640,6 @@
                         e.targetSerie == numSerie && 
                         e.targetRip == targetRip
                     );
-                    
                     if (match) {
                         esStorico = match;
                         dataStorico = record.dataString.split(' - ')[0]; 
@@ -545,8 +648,6 @@
                 }
 
                 let historyBadge = esStorico ? `<span class="badge badge-history">Target: ${dataStorico}</span>` : '';
-                
-                // Generazione Timer
                 let timerBtn = "";
                 let secondiRecupero = parseTempoRecupero(es.recupero);
                 if(secondiRecupero > 0) {
@@ -573,8 +674,8 @@
                     }
                     html += `<tr>
                                 <td><strong style="color:var(--text-muted);">${i}</strong></td>
-                                <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}"></td>
-                                <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}"></td>
+                                <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}" oninput="verificaCompletamento(this)"></td>
+                                <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}" oninput="verificaCompletamento(this)"></td>
                              </tr>`;
                 }
                 html += `</tbody></table></div>`;
@@ -584,7 +685,7 @@
             navigate('esegui');
         }
 
-        function terminaAllenamento() {
+        async function terminaAllenamento() {
             const schedaId = document.getElementById('esegui-scheda-id').value;
             const giorno = parseInt(document.getElementById('esegui-giorno').value);
             const scheda = schede.find(s => s.id === schedaId);
@@ -607,7 +708,8 @@
                 blocco.querySelectorAll('tbody tr').forEach((riga) => {
                     const kgInput = riga.querySelector('.exec-kg');
                     const ripInput = riga.querySelector('.exec-rip');
-                    let kgVal = kgInput.value; let ripVal = ripInput.value;
+                    let kgVal = kgInput.value.trim(); 
+                    let ripVal = ripInput.value.trim();
 
                     if(!kgVal && !isNaN(parseFloat(kgInput.placeholder))) kgVal = kgInput.placeholder;
                     if(!ripVal && !isNaN(parseInt(ripInput.placeholder))) ripVal = ripInput.placeholder;
@@ -616,17 +718,13 @@
                 });
                 
                 if(serieEseguite.length > 0) {
-                    record.eserciziFatti.push({ 
-                        nome: nomeEsercizio, 
-                        targetSerie: targetSerie,
-                        targetRip: targetRip,
-                        serie: serieEseguite 
-                    });
+                    record.eserciziFatti.push({ nome: nomeEsercizio, targetSerie, targetRip, serie: serieEseguite });
                 }
             });
 
             if(record.eserciziFatti.length === 0) {
-                if(!confirm("Sessione vuota. Uscire senza salvare?")) return;
+                const procedi = await customConfirm("Non hai compilato nessun dato. Uscire senza salvare?", "Sessione Vuota");
+                if(!procedi) return;
                 navigate('dettaglio');
                 return;
             }
@@ -636,7 +734,6 @@
             navigate('storico');
         }
 
-        // 7. STORICO
         function renderStorico() {
             const container = document.getElementById('lista-storico');
             container.innerHTML = '';
@@ -672,8 +769,9 @@
             });
         }
 
-        function eliminaRecord(index) {
-            if(confirm("Cancellare questa registrazione dal diario?")) {
+        async function eliminaRecord(index) {
+            const confermato = await customConfirm("Cancellare questa registrazione dal diario?", "Conferma Eliminazione");
+            if(confermato) {
                 diario.splice(index, 1);
                 salvaDiario();
                 renderStorico();
