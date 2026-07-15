@@ -134,12 +134,11 @@
         .group-serie { grid-column: 1 / 2; }
         .group-rip { grid-column: 2 / 3; }
         .group-rec { grid-column: 1 / 2; }
-        .group-note { grid-column: 1 / -1; } /* Nota a larghezza intera su mobile */
+        .group-note { grid-column: 1 / -1; } 
         .group-del { grid-column: 1 / -1; margin-top: 0.5rem; }
         .group-del button { width: 100%; padding: 0.75rem; background: transparent; }
 
         @media (min-width: 768px) {
-            /* Adattamento griglia per schermi grandi: controlli, muscolo, es, serie, rip, rec, note, cancella */
             .exercise-row { grid-template-columns: auto 1.2fr 1.5fr 0.7fr 0.7fr 1fr 1.5fr auto; align-items: end; padding: 1rem; }
             .row-controls { grid-column: auto; flex-direction: column; justify-content: center; margin-bottom: 0; padding-bottom: 0.2rem; border-bottom: none; gap: 0.25rem; }
             .btn-move { padding: 0.2rem 0.4rem; font-size: 0.8rem; }
@@ -176,6 +175,11 @@
         .timer-btn.timer-active { background: var(--input-bg) !important; color: var(--primary) !important; border-color: var(--primary) !important; }
         .timer-btn.timer-done { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
 
+        /* Progress Bar */
+        .progress-container { width: 100%; margin-top: 2.5rem; margin-bottom: 1rem; }
+        .progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s ease, background-color 0.3s ease; }
+
         /* MODALE CUSTOM */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.2s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
@@ -186,6 +190,9 @@
         /* Utilità Dashboard */
         .dashboard-panel { background: var(--input-bg); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 1.5rem; }
         .data-management { display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap; justify-content: center; }
+
+        /* Stile Timer Globale */
+        .global-timer { background: var(--primary); color: var(--primary-text); font-weight: 800; padding: 0.4rem 1rem; border-radius: 20px; font-size: 1.1rem; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 0.5rem; }
     </style>
 </head>
 <body>
@@ -208,15 +215,8 @@
     <main>
         <section id="view-home" class="view active card">
             <h1>Dashboard Operativa</h1>
-            
-            <div id="home-dynamic-content">
-                <!-- Contenuto iniettato via JS in base allo storico -->
-            </div>
-            
-            <div id="home-schede-list" style="margin-top: 1.5rem;">
-                <!-- Lista schede veloci o bottone creazione -->
-            </div>
-            
+            <div id="home-dynamic-content"></div>
+            <div id="home-schede-list" style="margin-top: 1.5rem;"></div>
             <div class="data-management">
                 <button class="btn btn-outline btn-small" onclick="esportaDati()">📥 Esporta Backup Dati</button>
                 <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">📤 Importa Backup</button>
@@ -255,14 +255,25 @@
         </section>
 
         <section id="view-esegui" class="view card">
-            <button class="btn btn-small btn-danger" onclick="navigate('dettaglio')" style="margin-bottom: 1.5rem;">&larr; Annulla Sessione</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                <button class="btn btn-small btn-danger" onclick="annullaAllenamento()">&larr; Annulla Sessione</button>
+                <div id="workout-global-timer" class="global-timer">00:00</div>
+            </div>
+            
             <h2 id="esegui-title">Esecuzione</h2>
             <input type="hidden" id="esegui-scheda-id">
             <input type="hidden" id="esegui-giorno">
             
             <div id="esegui-content"></div>
 
-            <button class="btn btn-success" style="width: 100%; margin-top: 2rem; padding: 1rem; font-size: 1.1rem;" onclick="terminaAllenamento()">
+            <div class="progress-container">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="workout-progress-fill"></div>
+                </div>
+                <p id="workout-progress-text" style="text-align: center; margin-top: 0.5rem; font-weight: bold; color: var(--text-muted); font-size: 0.9rem;">0% Completato</p>
+            </div>
+
+            <button class="btn btn-success" style="width: 100%; padding: 1rem; font-size: 1.1rem;" onclick="terminaAllenamento()">
                 🏁 Termina e Registra
             </button>
         </section>
@@ -286,20 +297,17 @@
     </div>
 
     <script>
-        // --- MOTORE MODALI ASINCRONI ---
+        // --- MOTORE MODALI ---
         function customConfirm(message, title = "Attenzione", confirmText = "Conferma", confirmClass = "btn-danger") {
             return new Promise((resolve) => {
                 const overlay = document.getElementById('custom-modal');
                 document.getElementById('modal-title').innerText = title;
                 document.getElementById('modal-msg').innerText = message;
-                
                 const btnCancel = document.getElementById('modal-btn-cancel');
                 const btnConfirm = document.getElementById('modal-btn-confirm');
-                
                 btnCancel.style.display = "inline-flex";
                 btnConfirm.innerText = confirmText;
                 btnConfirm.className = `btn ${confirmClass}`;
-
                 overlay.classList.add('active');
 
                 const handleResolve = (val) => {
@@ -308,10 +316,8 @@
                     btnConfirm.removeEventListener('click', onConfirm);
                     resolve(val);
                 };
-
                 const onCancel = () => handleResolve(false);
                 const onConfirm = () => handleResolve(true);
-
                 btnCancel.addEventListener('click', onCancel);
                 btnConfirm.addEventListener('click', onConfirm);
             });
@@ -322,14 +328,11 @@
                 const overlay = document.getElementById('custom-modal');
                 document.getElementById('modal-title').innerText = title;
                 document.getElementById('modal-msg').innerText = message;
-                
                 const btnCancel = document.getElementById('modal-btn-cancel');
                 const btnConfirm = document.getElementById('modal-btn-confirm');
-                
                 btnCancel.style.display = "none";
                 btnConfirm.innerText = "OK";
                 btnConfirm.className = "btn btn-primary";
-
                 overlay.classList.add('active');
 
                 const handleResolve = () => {
@@ -337,19 +340,41 @@
                     btnConfirm.removeEventListener('click', onConfirm);
                     resolve(true);
                 };
-
                 const onConfirm = () => handleResolve();
                 btnConfirm.addEventListener('click', onConfirm);
             });
         }
 
-        // --- TEMA E FULLSCREEN ---
+        // --- SISTEMA ---
         const themeToggle = document.getElementById('theme-toggle');
         const currentTheme = localStorage.getItem('theme') || 'dark'; 
         document.documentElement.setAttribute('data-theme', currentTheme);
         themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
 
         let activeTimers = {};
+        let globalWorkoutTimerInterval = null;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBeep() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); 
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
 
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -362,20 +387,33 @@
         function toggleFullScreen() {
             if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-                else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
-                else if (document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen();
                 else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.msExitFullscreen) document.msExitFullscreen();
-                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
 
         function pulisciTimerAttivi() {
-            for (let id in activeTimers) clearInterval(activeTimers[id]);
+            for (let id in activeTimers) clearInterval(activeTimers[id].interval);
             activeTimers = {};
+            if(globalWorkoutTimerInterval) {
+                clearInterval(globalWorkoutTimerInterval);
+                globalWorkoutTimerInterval = null;
+            }
+        }
+
+        function avviaTimerGlobale(startTime) {
+            if(globalWorkoutTimerInterval) clearInterval(globalWorkoutTimerInterval);
+            const display = document.getElementById('workout-global-timer');
+            
+            globalWorkoutTimerInterval = setInterval(() => {
+                const diff = Math.floor((Date.now() - startTime) / 1000);
+                const h = Math.floor(diff / 3600);
+                const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                display.innerText = h > 0 ? `⏱️ ${h}:${m}:${s}` : `⏱️ ${m}:${s}`;
+            }, 1000);
         }
 
         function parseTempoRecupero(str) {
@@ -384,7 +422,6 @@
             let sec = 0;
             let matchM = s.match(/(\d+)\s*m/);
             let matchS = s.match(/(\d+)\s*s/);
-            
             if(matchM || matchS) {
                 if(matchM) sec += parseInt(matchM[1]) * 60;
                 if(matchS) sec += parseInt(matchS[1]);
@@ -395,12 +432,21 @@
             return 0;
         }
 
-        function avviaTimer(btn, tempoStr, timerId) {
-            const secondiTotali = parseTempoRecupero(tempoStr);
+        function avviaTimer(btn, tempoStr, timerId, forceEndTime = null) {
+            initAudio();
+            let secondiTotali = 0;
+            let endTime = forceEndTime;
+
+            if (endTime) {
+                secondiTotali = Math.ceil((endTime - Date.now()) / 1000);
+            } else {
+                secondiTotali = parseTempoRecupero(tempoStr);
+                endTime = Date.now() + secondiTotali * 1000;
+            }
+
             if (secondiTotali <= 0) return;
 
-            if (activeTimers[timerId]) clearInterval(activeTimers[timerId]);
-            let rimanenti = secondiTotali;
+            if (activeTimers[timerId]) clearInterval(activeTimers[timerId].interval);
             
             btn.classList.add('timer-active');
             btn.classList.remove('timer-done');
@@ -411,17 +457,21 @@
                 return m > 0 ? `${m}m ${s}s` : `${s}s`;
             };
 
-            btn.innerText = `⏳ ${formatTime(rimanenti)}`;
+            btn.innerText = `⏳ ${formatTime(secondiTotali)}`;
+            activeTimers[timerId] = { interval: null, endTime: endTime };
+            salvaStatoAllenamento();
 
-            activeTimers[timerId] = setInterval(() => {
-                rimanenti--;
+            const intervalId = setInterval(() => {
+                let rimanenti = Math.ceil((endTime - Date.now()) / 1000);
+                
                 if (rimanenti <= 0) {
-                    clearInterval(activeTimers[timerId]);
+                    clearInterval(activeTimers[timerId].interval);
                     delete activeTimers[timerId];
                     
                     btn.classList.remove('timer-active');
                     btn.classList.add('timer-done');
                     btn.innerText = "✅ GO!";
+                    playBeep();
 
                     const blocco = btn.closest('.active-exercise');
                     if (blocco) {
@@ -429,7 +479,9 @@
                         blocco.setAttribute('data-esercizio-done', 'true');
                         const doneBtn = blocco.querySelector('button[onclick^="segnaEsercizioCompletato"]');
                         if(doneBtn) doneBtn.innerText = "Rimuovi spunta";
+                        aggiornaProgressoAllenamento();
                     }
+                    salvaStatoAllenamento();
                     
                     setTimeout(() => {
                         if (document.body.contains(btn)) {
@@ -441,6 +493,30 @@
                     btn.innerText = `⏳ ${formatTime(rimanenti)}`;
                 }
             }, 1000);
+
+            activeTimers[timerId].interval = intervalId;
+        }
+
+        // --- PROGRESSO ALLENAMENTO ---
+        function aggiornaProgressoAllenamento() {
+            const blocchi = document.querySelectorAll('#esegui-content .active-exercise');
+            if (blocchi.length === 0) return;
+
+            const completati = document.querySelectorAll('#esegui-content .active-exercise.completed').length;
+            const percentuale = Math.round((completati / blocchi.length) * 100);
+
+            const fill = document.getElementById('workout-progress-fill');
+            const text = document.getElementById('workout-progress-text');
+
+            if (fill) fill.style.width = percentuale + '%';
+            if (text) {
+                text.innerText = percentuale + '% Completato';
+                if (percentuale === 100) {
+                    text.style.color = 'var(--success)';
+                } else {
+                    text.style.color = 'var(--text-muted)';
+                }
+            }
         }
 
         function verificaCompletamento(inputElement) {
@@ -465,6 +541,8 @@
                 bloccoEsercizio.setAttribute('data-esercizio-done', 'false');
                 if(doneBtn) doneBtn.innerText = "✅ Segna come Completato";
             }
+            
+            aggiornaProgressoAllenamento();
         }
 
         function segnaEsercizioCompletato(btn) {
@@ -477,6 +555,9 @@
                 blocco.setAttribute('data-esercizio-done', 'false');
                 btn.innerText = "✅ Segna come Completato";
             }
+            
+            aggiornaProgressoAllenamento();
+            salvaStatoAllenamento();
         }
 
         // --- DATABASE E STATO ---
@@ -544,6 +625,22 @@
 
             let htmlDynamic = '';
             
+            const statoInCorsoStr = localStorage.getItem('allenamentoInCorso');
+            if(statoInCorsoStr) {
+                const statoInCorso = JSON.parse(statoInCorsoStr);
+                const nomeSchedaSos = schede.find(s => s.id === statoInCorso.schedaId)?.nome || 'Sconosciuta';
+                htmlDynamic += `
+                    <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--danger); margin-top: 0; margin-bottom: 0.5rem;">⚠️ Sessione in Sospeso</h3>
+                        <p style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--text);">Stavi eseguendo <strong>${nomeSchedaSos} (S${statoInCorso.giornoId})</strong>.</p>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-danger" style="flex: 1; padding: 1rem;" onclick="riprendiAllenamento()">▶ Riprendi Ora</button>
+                            <button class="btn btn-outline" style="padding: 1rem; border-color: var(--danger); color: var(--danger);" onclick="eliminaAllenamentoInCorso()">Scarta</button>
+                        </div>
+                    </div>
+                `;
+            }
+
             if (diario.length > 0) {
                 const last = diario[0];
                 const scheda = schede.find(s => s.nome === last.schedaNome);
@@ -555,7 +652,7 @@
                     nextBtnHtml = `<button class="btn btn-success" style="width:100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="iniziaAllenamento('${scheda.id}', ${nextDay})">▶ Avvia Prossimo: ${scheda.nome} (S${nextDay})</button>`;
                 }
 
-                htmlDynamic = `
+                htmlDynamic += `
                     <div class="dashboard-panel">
                         <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 0.25rem;">Riepilogo Ultima Sessione</p>
                         <p style="margin: 0; font-weight: 700; font-size: 1.1rem;">${last.schedaNome} - S${last.giorno} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9rem;">(${last.dataString.split(' - ')[0]})</span></p>
@@ -563,8 +660,8 @@
                     </div>
                     ${nextBtnHtml}
                 `;
-            } else {
-                htmlDynamic = `
+            } else if (!statoInCorsoStr) {
+                htmlDynamic += `
                     <div style="background: var(--input-bg); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px dashed var(--border); margin-bottom: 1.5rem;">
                         <p style="margin: 0; font-weight: 600; color: var(--text-muted);">Il diario è vuoto.</p>
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Crea una scheda e inizia a tracciare per generare le statistiche.</p>
@@ -618,10 +715,7 @@
             window.scrollTo(0, 0);
         }
 
-        // All'avvio dell'app:
-        window.onload = () => {
-            renderHome();
-        };
+        window.onload = () => { renderHome(); };
 
         function creaNuovaScheda() {
             pulisciEditor();
@@ -655,9 +749,7 @@
             aggiornaTitoliGiorni();
 
             if (giornoEsistente && giornoEsistente.esercizi) {
-                giornoEsistente.esercizi.forEach(es => {
-                    aggiungiEsercizioUI(uniqueId, es);
-                });
+                giornoEsistente.esercizi.forEach(es => { aggiungiEsercizioUI(uniqueId, es); });
             }
         }
 
@@ -670,6 +762,7 @@
             const container = document.getElementById(containerId);
             const row = document.createElement('div');
             row.className = 'exercise-row';
+            const dlId = 'dl-es-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
 
             let categorieOptions = '<option value="">Seleziona...</option>';
             for(let cat in eserciziDB) {
@@ -692,7 +785,8 @@
                 
                 <div class="input-group group-es">
                     <label>Esercizio</label>
-                    <select class="sel-es"><option value="">Seleziona prima il muscolo...</option></select>
+                    <input type="text" class="inp-es" placeholder="Seleziona o digita custom..." list="${dlId}" value="${datiEsistenti ? datiEsistenti.esercizio : ''}">
+                    <datalist id="${dlId}"></datalist>
                 </div>
                 
                 <div class="input-group group-serie">
@@ -721,7 +815,9 @@
             `;
             container.appendChild(row);
 
-            if(datiEsistenti) aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
+            if(datiEsistenti && datiEsistenti.categoria) {
+                aggiornaEsercizi(row.querySelector('.sel-cat'));
+            }
             aggiornaNumeriEsercizi(container);
         }
 
@@ -738,15 +834,14 @@
             aggiornaNumeriEsercizi(container);
         }
 
-        function aggiornaEsercizi(selectCategoria, esercizioPreselezionato = null) {
+        function aggiornaEsercizi(selectCategoria) {
             const categoria = selectCategoria.value;
-            const selectEsercizio = selectCategoria.parentElement.parentElement.querySelector('.sel-es');
-            selectEsercizio.innerHTML = '<option value="">Seleziona Esercizio...</option>';
+            const datalist = selectCategoria.closest('.exercise-row').querySelector('datalist');
+            datalist.innerHTML = '';
             
             if(categoria && eserciziDB[categoria]) {
                 eserciziDB[categoria].forEach(es => {
-                    const selected = esercizioPreselezionato === es ? 'selected' : '';
-                    selectEsercizio.innerHTML += `<option value="${es}" ${selected}>${es}</option>`;
+                    datalist.innerHTML += `<option value="${es}">`;
                 });
             }
         }
@@ -762,7 +857,7 @@
                 const esercizi = [];
                 node.querySelectorAll('.exercise-row').forEach(riga => {
                     const categoria = riga.querySelector('.sel-cat').value;
-                    const esercizio = riga.querySelector('.sel-es').value;
+                    const esercizio = riga.querySelector('.inp-es').value.trim();
                     const serie = riga.querySelector('.inp-serie').value;
                     const ripetizioni = riga.querySelector('.inp-rip').value;
                     const recupero = riga.querySelector('.inp-rec').value;
@@ -863,10 +958,65 @@
             }
         }
 
-        function iniziaAllenamento(schedaId, giornoId) {
+        // --- SISTEMA DI SALVATAGGIO STATO ALLENAMENTO ---
+        function salvaStatoAllenamento() {
+            if(!document.getElementById('view-esegui').classList.contains('active')) return;
+            
+            const schedaId = document.getElementById('esegui-scheda-id').value;
+            const giornoId = document.getElementById('esegui-giorno').value;
+            if(!schedaId || !giornoId) return;
+
+            let startTime = Date.now();
+            const prevStato = localStorage.getItem('allenamentoInCorso');
+            if(prevStato) {
+                const parsed = JSON.parse(prevStato);
+                if(parsed.startTime) startTime = parsed.startTime;
+            }
+
+            const stato = {
+                schedaId: schedaId,
+                giornoId: parseInt(giornoId),
+                timestamp: Date.now(),
+                startTime: startTime,
+                blocchi: []
+            };
+
+            document.querySelectorAll('#esegui-content .active-exercise').forEach((blocco, index) => {
+                const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
+                const inputs = [];
+                blocco.querySelectorAll('input').forEach(inp => {
+                    inputs.push({ value: inp.value });
+                });
+                
+                let timerState = null;
+                if(activeTimers['timer_' + index]) {
+                    timerState = activeTimers['timer_' + index].endTime;
+                }
+
+                stato.blocchi.push({ isDone, inputs, timerEndTime: timerState });
+            });
+
+            localStorage.setItem('allenamentoInCorso', JSON.stringify(stato));
+        }
+
+        function eliminaAllenamentoInCorso() {
+            localStorage.removeItem('allenamentoInCorso');
+            renderHome();
+        }
+
+        async function annullaAllenamento() {
+            const confirm = await customConfirm("Vuoi annullare la sessione? Tutti i progressi non terminati andranno persi.", "Annulla Sessione");
+            if(confirm) {
+                localStorage.removeItem('allenamentoInCorso');
+                pulisciTimerAttivi();
+                navigate('dettaglio');
+            }
+        }
+
+        function costruisciVistaEsecuzione(schedaId, giornoId) {
             const scheda = schede.find(s => s.id === schedaId);
             const allenamento = scheda.allenamenti.find(a => a.giorno === giornoId);
-            if(!allenamento) return;
+            if(!allenamento) return false;
 
             document.getElementById('esegui-title').innerText = `${scheda.nome} - S${giornoId}`;
             document.getElementById('esegui-scheda-id').value = schedaId;
@@ -929,8 +1079,8 @@
                         }
                         html += `<tr>
                                     <td><strong style="color:var(--text-muted);">${i}</strong></td>
-                                    <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}" oninput="verificaCompletamento(this)"></td>
-                                    <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}" oninput="verificaCompletamento(this)"></td>
+                                    <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}" oninput="verificaCompletamento(this); salvaStatoAllenamento();"></td>
+                                    <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}" oninput="verificaCompletamento(this); salvaStatoAllenamento();"></td>
                                  </tr>`;
                     }
                     html += `</tbody></table>`;
@@ -942,7 +1092,58 @@
             });
 
             container.innerHTML = html;
-            navigate('esegui');
+            return true;
+        }
+
+        function iniziaAllenamento(schedaId, giornoId) {
+            if(costruisciVistaEsecuzione(schedaId, giornoId)) {
+                localStorage.removeItem('allenamentoInCorso');
+                const startTime = Date.now();
+                avviaTimerGlobale(startTime);
+                navigate('esegui');
+                aggiornaProgressoAllenamento();
+                salvaStatoAllenamento();
+            }
+        }
+
+        function riprendiAllenamento() {
+            const statoStr = localStorage.getItem('allenamentoInCorso');
+            if(!statoStr) return;
+            const stato = JSON.parse(statoStr);
+            
+            if(costruisciVistaEsecuzione(stato.schedaId, stato.giornoId)) {
+                if(stato.startTime) avviaTimerGlobale(stato.startTime);
+
+                navigate('esegui');
+                
+                setTimeout(() => {
+                    const blocchi = document.querySelectorAll('#esegui-content .active-exercise');
+                    stato.blocchi.forEach((bStato, index) => {
+                        if(blocchi[index]) {
+                            if(bStato.isDone) {
+                                blocchi[index].classList.add('completed');
+                                blocchi[index].setAttribute('data-esercizio-done', 'true');
+                                const btn = blocchi[index].querySelector('button[onclick^="segnaEsercizioCompletato"]');
+                                if(btn) btn.innerText = "Rimuovi spunta";
+                            }
+                            
+                            const inputs = blocchi[index].querySelectorAll('input');
+                            bStato.inputs.forEach((inpVal, i) => {
+                                if(inputs[i]) inputs[i].value = inpVal.value;
+                            });
+                            
+                            if(bStato.timerEndTime) {
+                                const rimanenti = Math.ceil((bStato.timerEndTime - Date.now()) / 1000);
+                                if(rimanenti > 0) {
+                                    const btnTimer = blocchi[index].querySelector('.timer-btn');
+                                    if(btnTimer) avviaTimer(btnTimer, rimanenti + 's', 'timer_' + index, bStato.timerEndTime);
+                                }
+                            }
+                        }
+                    });
+                    aggiornaProgressoAllenamento();
+                }, 50);
+            }
         }
 
         async function terminaAllenamento() {
@@ -951,11 +1152,25 @@
             const scheda = schede.find(s => s.id === schedaId);
             const now = new Date();
             
+            let durataTotaleFormat = "00:00";
+            const statoStr = localStorage.getItem('allenamentoInCorso');
+            if(statoStr) {
+                const stato = JSON.parse(statoStr);
+                if(stato.startTime) {
+                    const diff = Math.floor((Date.now() - stato.startTime) / 1000);
+                    const h = Math.floor(diff / 3600);
+                    const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                    const s = (diff % 60).toString().padStart(2, '0');
+                    durataTotaleFormat = h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+                }
+            }
+
             const record = {
                 id: Date.now().toString(),
                 dataString: now.toLocaleDateString('it-IT') + ' - ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'}),
                 schedaNome: scheda.nome,
                 giorno: giorno,
+                durata: durataTotaleFormat,
                 eserciziFatti: []
             };
 
@@ -984,7 +1199,6 @@
                         if(!kgVal && !isNaN(parseFloat(kgInput.placeholder))) kgVal = kgInput.placeholder;
                         if(!ripVal && !isNaN(parseInt(ripInput.placeholder))) ripVal = ripInput.placeholder;
 
-                        // Se l'utente ha premuto Completato ma non ha inserito nulla (e non c'erano placeholder), salviamo a 0.
                         if (isDone && !kgVal && !ripVal) {
                             kgVal = 0;
                             ripVal = 0;
@@ -1002,12 +1216,16 @@
             if(record.eserciziFatti.length === 0) {
                 const procedi = await customConfirm("Non hai compilato nessun dato. Uscire senza salvare?", "Sessione Vuota");
                 if(!procedi) return;
+                localStorage.removeItem('allenamentoInCorso');
+                pulisciTimerAttivi();
                 navigate('dettaglio');
                 return;
             }
 
             diario.unshift(record);
             salvaDiario();
+            localStorage.removeItem('allenamentoInCorso');
+            pulisciTimerAttivi();
             navigate('storico');
         }
 
@@ -1021,11 +1239,16 @@
             }
 
             diario.forEach((record, index) => {
+                let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:var(--input-bg); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid var(--border);">⏱️ Durata: ${record.durata}</span>` : '';
+                
                 let html = `<div class="workout-card" style="border-left-color: var(--text-muted); background: var(--card-bg);">
-                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
                                     <div>
                                         <h3 style="margin:0; font-size:1.1rem;">${record.schedaNome}</h3>
-                                        <span style="font-size:0.8rem; color:var(--text-muted);">Sessione ${record.giorno} | ${record.dataString}</span>
+                                        <div style="margin-top:0.2rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                            <span style="font-size:0.8rem; color:var(--text-muted);">Sessione ${record.giorno} | ${record.dataString}</span>
+                                            ${durataBadge}
+                                        </div>
                                     </div>
                                     <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="eliminaRecord(${index})">X</button>
                                 </div>
