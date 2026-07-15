@@ -77,8 +77,8 @@
         h1 { font-size: 1.8rem; letter-spacing: -0.025em; }
         p { color: var(--text-muted); }
         
-        .btn { background: var(--primary); color: var(--primary-text); border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .btn { background: var(--primary); color: var(--primary-text); border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, background 0.2s, box-shadow 0.2s; }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .btn:active { transform: translateY(0); box-shadow: none; }
         
         .btn-danger { background: var(--danger); color: white; }
@@ -87,8 +87,10 @@
         .btn-success:hover { background: var(--success-hover); }
         
         .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; box-shadow: none; }
+        .btn-small:hover { transform: translateY(-1px); }
+        
         .btn-outline { background: transparent; border: 2px dashed var(--border); color: var(--text-muted); box-shadow: none; }
-        .btn-outline:hover { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+        .btn-outline:hover { background: var(--input-bg); border-color: var(--primary); color: var(--text); transform: translateY(0); }
         
         input, select { padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; width: 100%; margin-bottom: 0.5rem; background-color: var(--input-bg); color: var(--text); font-size: 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2); }
@@ -131,15 +133,17 @@
         .group-cat, .group-es { grid-column: 1 / -1; }
         .group-serie { grid-column: 1 / 2; }
         .group-rip { grid-column: 2 / 3; }
-        .group-rec { grid-column: 1 / -1; }
+        .group-rec { grid-column: 1 / 2; }
+        .group-note { grid-column: 1 / -1; } /* Nota a larghezza intera su mobile */
         .group-del { grid-column: 1 / -1; margin-top: 0.5rem; }
         .group-del button { width: 100%; padding: 0.75rem; background: transparent; }
 
         @media (min-width: 768px) {
-            .exercise-row { grid-template-columns: auto 2fr 3fr 1fr 1fr 1.5fr auto; align-items: end; padding: 1rem; }
+            /* Adattamento griglia per schermi grandi: controlli, muscolo, es, serie, rip, rec, note, cancella */
+            .exercise-row { grid-template-columns: auto 1.2fr 1.5fr 0.7fr 0.7fr 1fr 1.5fr auto; align-items: end; padding: 1rem; }
             .row-controls { grid-column: auto; flex-direction: column; justify-content: center; margin-bottom: 0; padding-bottom: 0.2rem; border-bottom: none; gap: 0.25rem; }
             .btn-move { padding: 0.2rem 0.4rem; font-size: 0.8rem; }
-            .group-cat, .group-es, .group-serie, .group-rip, .group-rec, .group-del { grid-column: auto; margin-top: 0; }
+            .group-cat, .group-es, .group-serie, .group-rip, .group-rec, .group-note, .group-del { grid-column: auto; margin-top: 0; }
             .group-del button { width: auto; padding: 0.75rem 1rem; }
         }
 
@@ -147,7 +151,7 @@
         .active-exercise { border-left-color: var(--danger); transition: border-left-color 0.3s ease; }
         .active-exercise.completed { border-left-color: var(--success); }
 
-        .scheda-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; background: var(--card-bg); flex-wrap: wrap; gap: 1rem; transition: transform 0.2s; }
+        .scheda-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; background: var(--input-bg); flex-wrap: wrap; gap: 1rem; transition: transform 0.2s; }
         .scheda-item:hover { transform: scale(1.01); border-color: var(--primary); }
         .scheda-actions { display: flex; gap: 0.5rem; }
         
@@ -178,6 +182,10 @@
         .modal-card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); width: 90%; max-width: 420px; transform: translateY(20px); transition: transform 0.2s ease; border: 1px solid var(--border); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
+        
+        /* Utilità Dashboard */
+        .dashboard-panel { background: var(--input-bg); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 1.5rem; }
+        .data-management { display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap; justify-content: center; }
     </style>
 </head>
 <body>
@@ -199,13 +207,25 @@
 
     <main>
         <section id="view-home" class="view active card">
-            <h1>Sistema Operativo Allenamento</h1>
-            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">Piattaforma per la gestione delle schede e il tracciamento del sovraccarico progressivo. Il sistema archivia i dati per volume e intensità, suggerendo i carichi target per le sessioni future.</p>
-            <button class="btn" onclick="creaNuovaScheda()">+ Inizia creando una scheda</button>
+            <h1>Dashboard Operativa</h1>
+            
+            <div id="home-dynamic-content">
+                <!-- Contenuto iniettato via JS in base allo storico -->
+            </div>
+            
+            <div id="home-schede-list" style="margin-top: 1.5rem;">
+                <!-- Lista schede veloci o bottone creazione -->
+            </div>
+            
+            <div class="data-management">
+                <button class="btn btn-outline btn-small" onclick="esportaDati()">📥 Esporta Backup Dati</button>
+                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">📤 Importa Backup</button>
+                <input type="file" id="import-file" style="display:none" accept=".json" onchange="importaDati(event)">
+            </div>
         </section>
 
         <section id="view-gestione" class="view card">
-            <h2>Le Mie Schede</h2>
+            <h2>Gestione Schede</h2>
             <div id="lista-schede"></div>
         </section>
 
@@ -249,7 +269,7 @@
 
         <section id="view-storico" class="view card">
             <h2>Diario Allenamenti</h2>
-            <p style="margin-bottom: 1.5rem;">Storico delle sessioni completate.</p>
+            <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Storico delle sessioni completate.</p>
             <div id="lista-storico"></div>
         </section>
     </main>
@@ -423,7 +443,6 @@
             }, 1000);
         }
 
-        // --- SISTEMA DI VALIDAZIONE ESERCIZIO MANUALE/AUTOMATICO ---
         function verificaCompletamento(inputElement) {
             const bloccoEsercizio = inputElement.closest('.active-exercise');
             const righe = bloccoEsercizio.querySelectorAll('tbody tr');
@@ -479,7 +498,99 @@
         function salvaDati() { localStorage.setItem('schedePalestra', JSON.stringify(schede)); }
         function salvaDiario() { localStorage.setItem('diarioPalestra', JSON.stringify(diario)); }
 
-        // --- LOGICA EDITOR E NUMERAZIONE ---
+        // --- GESTIONE DATI (IMPORT/EXPORT) ---
+        function esportaDati() {
+            const data = { schede: schede, diario: diario };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `backup_palestra_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+        }
+
+        function importaDati(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.schede !== undefined && data.diario !== undefined) {
+                        const confermato = await customConfirm("Vuoi sovrascrivere i tuoi dati attuali con questo backup? L'azione non è reversibile.", "Conferma Importazione", "Sovrascrivi Dati");
+                        if (confermato) {
+                            schede = data.schede;
+                            diario = data.diario;
+                            salvaDati();
+                            salvaDiario();
+                            customAlert("Dati ripristinati con successo dal file di backup.", "Operazione Riuscita");
+                            renderHome(); 
+                        }
+                    } else {
+                        customAlert("Il file selezionato non contiene la struttura dati valida per l'applicazione.", "File Corrotto");
+                    }
+                } catch (err) {
+                    customAlert("Impossibile leggere il file. Formato non supportato.", "Errore di Lettura");
+                }
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // --- DASHBOARD HOME ---
+        function renderHome() {
+            const dynamicContent = document.getElementById('home-dynamic-content');
+            const schedeList = document.getElementById('home-schede-list');
+
+            let htmlDynamic = '';
+            
+            if (diario.length > 0) {
+                const last = diario[0];
+                const scheda = schede.find(s => s.nome === last.schedaNome);
+                let nextDay = 1;
+                let nextBtnHtml = '';
+
+                if (scheda) {
+                    nextDay = last.giorno < scheda.allenamenti.length ? last.giorno + 1 : 1;
+                    nextBtnHtml = `<button class="btn btn-success" style="width:100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="iniziaAllenamento('${scheda.id}', ${nextDay})">▶ Avvia Prossimo: ${scheda.nome} (S${nextDay})</button>`;
+                }
+
+                htmlDynamic = `
+                    <div class="dashboard-panel">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 0.25rem;">Riepilogo Ultima Sessione</p>
+                        <p style="margin: 0; font-weight: 700; font-size: 1.1rem;">${last.schedaNome} - S${last.giorno} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9rem;">(${last.dataString.split(' - ')[0]})</span></p>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">${last.eserciziFatti.length} esercizi completati con successo.</p>
+                    </div>
+                    ${nextBtnHtml}
+                `;
+            } else {
+                htmlDynamic = `
+                    <div style="background: var(--input-bg); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px dashed var(--border); margin-bottom: 1.5rem;">
+                        <p style="margin: 0; font-weight: 600; color: var(--text-muted);">Il diario è vuoto.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Crea una scheda e inizia a tracciare per generare le statistiche.</p>
+                    </div>
+                `;
+            }
+            dynamicContent.innerHTML = htmlDynamic;
+
+            if (schede.length > 0) {
+                let htmlSchede = `<h3 style="font-size: 1.1rem; margin-bottom: 1rem; margin-top: 1.5rem; color: var(--text-muted);">Accesso Rapido Schede</h3><div style="display: grid; gap: 0.5rem;">`;
+                schede.forEach(s => {
+                    htmlSchede += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); padding: 0.75rem 1rem; border-radius: 8px;">
+                            <strong style="font-size: 1rem;">${s.nome}</strong>
+                            <button class="btn btn-primary btn-small" onclick="mostraDettaglio('${s.id}')">Apri</button>
+                        </div>
+                    `;
+                });
+                htmlSchede += `</div><button class="btn btn-outline" style="width: 100%; margin-top: 1.5rem;" onclick="creaNuovaScheda()">+ Crea Nuova Scheda</button>`;
+                schedeList.innerHTML = htmlSchede;
+            } else {
+                schedeList.innerHTML = `<button class="btn" style="width: 100%; padding: 1rem; font-size: 1.1rem;" onclick="creaNuovaScheda()">+ Crea la tua prima scheda</button>`;
+            }
+        }
+
+        // --- LOGICA DI NAVIGAZIONE E INIZIALIZZAZIONE ---
         function aggiornaNumeriEsercizi(container) {
             const righe = container.querySelectorAll('.exercise-row');
             righe.forEach((riga, index) => {
@@ -501,10 +612,16 @@
                 document.getElementById(`nav-${viewName}`).classList.add('active');
             }
 
+            if(viewName === 'home') renderHome();
             if(viewName === 'gestione') renderListaSchede();
             if(viewName === 'storico') renderStorico();
             window.scrollTo(0, 0);
         }
+
+        // All'avvio dell'app:
+        window.onload = () => {
+            renderHome();
+        };
 
         function creaNuovaScheda() {
             pulisciEditor();
@@ -592,6 +709,11 @@
                     <label>Recupero / Durata</label>
                     <input type="text" class="inp-rec" placeholder="Es. 90s / 10m" value="${datiEsistenti ? datiEsistenti.recupero : ''}">
                 </div>
+
+                <div class="input-group group-note">
+                    <label>Note / Varianti (Opzionale)</label>
+                    <input type="text" class="inp-note" placeholder="Es. presa stretta, fermo 1s..." value="${datiEsistenti && datiEsistenti.note ? datiEsistenti.note : ''}">
+                </div>
                 
                 <div class="group-del">
                     <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="const cont = this.closest('.esercizi-container'); this.closest('.exercise-row').remove(); aggiornaNumeriEsercizi(cont);">X Elimina</button>
@@ -644,8 +766,9 @@
                     const serie = riga.querySelector('.inp-serie').value;
                     const ripetizioni = riga.querySelector('.inp-rip').value;
                     const recupero = riga.querySelector('.inp-rec').value;
+                    const note = riga.querySelector('.inp-note').value.trim();
 
-                    if(categoria && esercizio) esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero });
+                    if(categoria && esercizio) esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero, note });
                 });
                 allenamenti.push({ giorno: index + 1, esercizi });
             });
@@ -703,8 +826,9 @@
                                 <tbody>`;
                 
                 all.esercizi.forEach(es => {
+                    let noteHtml = es.note ? `<br><span style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">Nota: ${es.note}</span>` : '';
                     html += `<tr>
-                                <td><strong>${es.esercizio}</strong><br><span class="badge">${es.categoria.replace(/_/g, ' ')}</span></td>
+                                <td><strong>${es.esercizio}</strong><br><span class="badge">${es.categoria.replace(/_/g, ' ')}</span>${noteHtml}</td>
                                 <td>${es.serie || '-'}</td>
                                 <td>${es.ripetizioni || '-'}</td>
                                 <td>${es.recupero || '-'}</td>
@@ -780,14 +904,17 @@
                     timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px;" onclick="avviaTimer(this, '${es.recupero}', 'timer_${index}')">⏱️ Timer</button>`;
                 }
 
+                let alertNote = es.note ? `<div style="background: rgba(255, 204, 0, 0.1); border-left: 3px solid var(--primary); padding: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text);"><strong>Nota:</strong> ${es.note}</div>` : '';
+
                 html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero || ''}">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
                                 <h3 class="exec-es-nome" style="margin:0;">${es.esercizio}</h3>
                                 ${historyBadge}
                             </div>
-                            <p style="font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center;">
+                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center;">
                                 Obiettivo: ${numSerie}x${targetRip || '?'} | Rec: ${es.recupero || '-'}${timerBtn}
-                            </p>`;
+                            </p>
+                            ${alertNote}`;
                 
                 if (!isCardio) {
                     html += `<table class="table-esegui">
