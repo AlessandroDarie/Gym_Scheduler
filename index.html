@@ -9,8 +9,8 @@
             /* TEMA CHIARO */
             --primary: #ffcc00;
             --primary-hover: #e6b800;
-            --primary-text: #242424; /* Testo scuro per alto contrasto sul giallo */
-            --target-color: #d48806; /* Ambra scuro per leggibilità del target su bianco */
+            --primary-text: #242424; 
+            --target-color: #d48806; 
             
             --danger: #ef4444;
             --danger-hover: #dc2626;
@@ -33,15 +33,15 @@
             --primary: #ffcc00;
             --primary-hover: #e6b800;
             --primary-text: #242424;
-            --target-color: #ffcc00; /* Giallo acceso leggibile sul nero */
+            --target-color: #ffcc00; 
             
             --danger: #ef4444;
             --danger-hover: #f87171;
             --success: #10b981;
             --success-hover: #34d399;
             
-            --bg: #151515; /* Sfondo generale più scuro per far risaltare le card */
-            --card-bg: #242424; /* Il tuo #242424 per i blocchi */
+            --bg: #151515; 
+            --card-bg: #242424; 
             --text: #f8fafc;
             --text-muted: #a1a1aa;
             --border: #3f3f3f;
@@ -123,9 +123,10 @@
         .input-group input, .input-group select { margin-bottom: 0; }
 
         /* Controlli di riordino */
-        .row-controls { grid-column: 1 / -1; display: flex; gap: 0.5rem; justify-content: flex-end; margin-bottom: 0.5rem; }
+        .row-controls { grid-column: 1 / -1; display: flex; gap: 0.5rem; justify-content: flex-start; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
         .btn-move { padding: 0.4rem 0.8rem; font-size: 1rem; background: var(--input-bg); border: 1px solid var(--border); cursor: pointer; border-radius: 6px; color: var(--text-muted); transition: all 0.2s; }
         .btn-move:hover { background: var(--border); color: var(--text); }
+        .ex-number-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--primary); color: var(--primary-text); font-weight: 800; border-radius: 50%; width: 28px; height: 28px; font-size: 0.9rem; }
 
         .group-cat, .group-es { grid-column: 1 / -1; }
         .group-serie { grid-column: 1 / 2; }
@@ -136,7 +137,7 @@
 
         @media (min-width: 768px) {
             .exercise-row { grid-template-columns: auto 2fr 3fr 1fr 1fr 1.5fr auto; align-items: end; padding: 1rem; }
-            .row-controls { grid-column: auto; flex-direction: column; justify-content: center; margin-bottom: 0; padding-bottom: 0.2rem; gap: 0.25rem; }
+            .row-controls { grid-column: auto; flex-direction: column; justify-content: center; margin-bottom: 0; padding-bottom: 0.2rem; border-bottom: none; gap: 0.25rem; }
             .btn-move { padding: 0.2rem 0.4rem; font-size: 0.8rem; }
             .group-cat, .group-es, .group-serie, .group-rip, .group-rec, .group-del { grid-column: auto; margin-top: 0; }
             .group-del button { width: auto; padding: 0.75rem 1rem; }
@@ -166,21 +167,15 @@
         .badge-history { background: var(--primary); color: var(--primary-text); margin-left: auto; }
 
         .timer-btn { transition: all 0.2s; min-width: 90px; }
+        
+        /* Fix Stato Hover per Timer su Mobile */
+        .timer-btn.timer-active { background: var(--input-bg) !important; color: var(--primary) !important; border-color: var(--primary) !important; }
+        .timer-btn.timer-done { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
 
         /* MODALE CUSTOM */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 9999; opacity: 0; transition: opacity 0.2s ease;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.2s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-card {
-            background: var(--card-bg); padding: 2rem; border-radius: var(--radius);
-            box-shadow: var(--shadow); width: 90%; max-width: 420px;
-            transform: translateY(20px); transition: transform 0.2s ease;
-            border: 1px solid var(--border);
-        }
+        .modal-card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); width: 90%; max-width: 420px; transform: translateY(20px); transition: transform 0.2s ease; border: 1px solid var(--border); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
     </style>
@@ -330,7 +325,7 @@
 
         // --- TEMA E FULLSCREEN ---
         const themeToggle = document.getElementById('theme-toggle');
-        const currentTheme = localStorage.getItem('theme') || 'dark'; // Default a scuro per questo aggiornamento
+        const currentTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', currentTheme);
         themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
 
@@ -387,8 +382,8 @@
             if (activeTimers[timerId]) clearInterval(activeTimers[timerId]);
             let rimanenti = secondiTotali;
             
-            btn.style.color = "var(--primary)";
-            btn.style.borderColor = "var(--primary)";
+            btn.classList.add('timer-active');
+            btn.classList.remove('timer-done');
             
             const formatTime = (secs) => {
                 let m = Math.floor(secs / 60);
@@ -403,16 +398,15 @@
                 if (rimanenti <= 0) {
                     clearInterval(activeTimers[timerId]);
                     delete activeTimers[timerId];
+                    
+                    btn.classList.remove('timer-active');
+                    btn.classList.add('timer-done');
                     btn.innerText = "✅ GO!";
-                    btn.style.color = "var(--success)";
-                    btn.style.borderColor = "var(--success)";
-                    btn.style.background = "transparent";
                     
                     setTimeout(() => {
                         if (document.body.contains(btn)) {
+                            btn.classList.remove('timer-done');
                             btn.innerText = "⏱️ Timer";
-                            btn.style.color = "var(--text-muted)";
-                            btn.style.borderColor = "var(--border)";
                         }
                     }, 5000);
                 } else {
@@ -455,7 +449,15 @@
         function salvaDati() { localStorage.setItem('schedePalestra', JSON.stringify(schede)); }
         function salvaDiario() { localStorage.setItem('diarioPalestra', JSON.stringify(diario)); }
 
-        // --- LOGICA ---
+        // --- LOGICA EDITOR E NUMERAZIONE ---
+        function aggiornaNumeriEsercizi(container) {
+            const righe = container.querySelectorAll('.exercise-row');
+            righe.forEach((riga, index) => {
+                const badge = riga.querySelector('.ex-number-badge');
+                if(badge) badge.innerText = index + 1;
+            });
+        }
+
         function navigate(viewName) {
             if(document.getElementById('view-esegui').classList.contains('active') && viewName !== 'esegui') {
                 pulisciTimerAttivi();
@@ -529,8 +531,11 @@
 
             row.innerHTML = `
                 <div class="row-controls">
-                    <button class="btn-move" onclick="moveRow(this, -1)" title="Sposta su">▲</button>
-                    <button class="btn-move" onclick="moveRow(this, 1)" title="Sposta giù">▼</button>
+                    <span class="ex-number-badge"></span>
+                    <div style="margin-left:auto; display:flex; gap:0.25rem;">
+                        <button class="btn-move" onclick="moveRow(this, -1)" title="Sposta su">▲</button>
+                        <button class="btn-move" onclick="moveRow(this, 1)" title="Sposta giù">▼</button>
+                    </div>
                 </div>
                 
                 <div class="input-group group-cat">
@@ -559,12 +564,13 @@
                 </div>
                 
                 <div class="group-del">
-                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="this.closest('.exercise-row').remove()">X Elimina</button>
+                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="const cont = this.closest('.esercizi-container'); this.closest('.exercise-row').remove(); aggiornaNumeriEsercizi(cont);">X Elimina</button>
                 </div>
             `;
             container.appendChild(row);
 
             if(datiEsistenti) aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
+            aggiornaNumeriEsercizi(container);
         }
 
         function moveRow(btn, direction) {
@@ -577,6 +583,7 @@
             } else if (direction === 1 && index < container.children.length - 1) {
                 container.insertBefore(row, container.children[index + 2]);
             }
+            aggiornaNumeriEsercizi(container);
         }
 
         function aggiornaEsercizi(selectCategoria, esercizioPreselezionato = null) {
