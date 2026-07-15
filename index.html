@@ -200,7 +200,7 @@
     <main>
         <section id="view-home" class="view active card">
             <h1>Sistema Operativo Allenamento</h1>
-            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">Nessuna scusa sui dati persi. Il sistema ora ricorda i tuoi massimali in modo esatto, confrontando nome, volume e intensità. Usa i target e battili.</p>
+            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">Piattaforma per la gestione delle schede e il tracciamento del sovraccarico progressivo. Il sistema archivia i dati per volume e intensità, suggerendo i carichi target per le sessioni future.</p>
             <button class="btn" onclick="creaNuovaScheda()">+ Inizia creando una scheda</button>
         </section>
 
@@ -249,7 +249,7 @@
 
         <section id="view-storico" class="view card">
             <h2>Diario Allenamenti</h2>
-            <p style="margin-bottom: 1.5rem;">I numeri non mentono.</p>
+            <p style="margin-bottom: 1.5rem;">Storico delle sessioni completate.</p>
             <div id="lista-storico"></div>
         </section>
     </main>
@@ -325,7 +325,7 @@
 
         // --- TEMA E FULLSCREEN ---
         const themeToggle = document.getElementById('theme-toggle');
-        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const currentTheme = localStorage.getItem('theme') || 'dark'; 
         document.documentElement.setAttribute('data-theme', currentTheme);
         themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
 
@@ -402,6 +402,14 @@
                     btn.classList.remove('timer-active');
                     btn.classList.add('timer-done');
                     btn.innerText = "✅ GO!";
+
+                    const blocco = btn.closest('.active-exercise');
+                    if (blocco) {
+                        blocco.classList.add('completed');
+                        blocco.setAttribute('data-esercizio-done', 'true');
+                        const doneBtn = blocco.querySelector('button[onclick^="segnaEsercizioCompletato"]');
+                        if(doneBtn) doneBtn.innerText = "Rimuovi spunta";
+                    }
                     
                     setTimeout(() => {
                         if (document.body.contains(btn)) {
@@ -415,6 +423,7 @@
             }, 1000);
         }
 
+        // --- SISTEMA DI VALIDAZIONE ESERCIZIO MANUALE/AUTOMATICO ---
         function verificaCompletamento(inputElement) {
             const bloccoEsercizio = inputElement.closest('.active-exercise');
             const righe = bloccoEsercizio.querySelectorAll('tbody tr');
@@ -426,8 +435,29 @@
                 if (kgValue === "" || ripValue === "") tuttoCompilato = false;
             });
 
-            if (tuttoCompilato) bloccoEsercizio.classList.add('completed');
-            else bloccoEsercizio.classList.remove('completed');
+            const doneBtn = bloccoEsercizio.querySelector('button[onclick^="segnaEsercizioCompletato"]');
+
+            if (tuttoCompilato) {
+                bloccoEsercizio.classList.add('completed');
+                bloccoEsercizio.setAttribute('data-esercizio-done', 'true');
+                if(doneBtn) doneBtn.innerText = "Rimuovi spunta";
+            } else {
+                bloccoEsercizio.classList.remove('completed');
+                bloccoEsercizio.setAttribute('data-esercizio-done', 'false');
+                if(doneBtn) doneBtn.innerText = "✅ Segna come Completato";
+            }
+        }
+
+        function segnaEsercizioCompletato(btn) {
+            const blocco = btn.closest('.active-exercise');
+            blocco.classList.toggle('completed');
+            if (blocco.classList.contains('completed')) {
+                blocco.setAttribute('data-esercizio-done', 'true');
+                btn.innerText = "Rimuovi spunta";
+            } else {
+                blocco.setAttribute('data-esercizio-done', 'false');
+                btn.innerText = "✅ Segna come Completato";
+            }
         }
 
         // --- DATABASE E STATO ---
@@ -559,8 +589,8 @@
                 </div>
                 
                 <div class="input-group group-rec">
-                    <label>Recupero</label>
-                    <input type="text" class="inp-rec" placeholder="Es. 90s" value="${datiEsistenti ? datiEsistenti.recupero : ''}">
+                    <label>Recupero / Durata</label>
+                    <input type="text" class="inp-rec" placeholder="Es. 90s / 10m" value="${datiEsistenti ? datiEsistenti.recupero : ''}">
                 </div>
                 
                 <div class="group-del">
@@ -724,6 +754,7 @@
             allenamento.esercizi.forEach((es, index) => {
                 let numSerie = parseInt(es.serie) || 1;
                 let targetRip = es.ripetizioni || '';
+                const isCardio = es.categoria === 'riscaldamento' || es.categoria === 'post_allenamento';
                 
                 let esStorico = null;
                 let dataStorico = null;
@@ -744,35 +775,43 @@
                 let historyBadge = esStorico ? `<span class="badge badge-history">Target: ${dataStorico}</span>` : '';
                 let timerBtn = "";
                 let secondiRecupero = parseTempoRecupero(es.recupero);
-                if(secondiRecupero > 0) {
+                
+                if(secondiRecupero > 0 && !isCardio) {
                     timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px;" onclick="avviaTimer(this, '${es.recupero}', 'timer_${index}')">⏱️ Timer</button>`;
                 }
 
-                html += `<div class="workout-card active-exercise" id="exec-${index}" data-target-serie="${numSerie}" data-target-rip="${targetRip}">
+                html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero || ''}">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
                                 <h3 class="exec-es-nome" style="margin:0;">${es.esercizio}</h3>
                                 ${historyBadge}
                             </div>
                             <p style="font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center;">
                                 Obiettivo: ${numSerie}x${targetRip || '?'} | Rec: ${es.recupero || '-'}${timerBtn}
-                            </p>
-                            <table class="table-esegui">
+                            </p>`;
+                
+                if (!isCardio) {
+                    html += `<table class="table-esegui">
                                 <thead><tr><th>Set</th><th>Kg</th><th>Ripetizioni</th></tr></thead>
                                 <tbody>`;
-                
-                for(let i = 1; i <= numSerie; i++) {
-                    let prevKg = "Kg"; let prevRip = "Rip";
-                    if(esStorico && esStorico.serie[i-1]) {
-                        prevKg = esStorico.serie[i-1].kg || "Kg";
-                        prevRip = esStorico.serie[i-1].rip || "Rip";
+                    
+                    for(let i = 1; i <= numSerie; i++) {
+                        let prevKg = "Kg"; let prevRip = "Rip";
+                        if(esStorico && esStorico.serie[i-1]) {
+                            prevKg = esStorico.serie[i-1].kg || "Kg";
+                            prevRip = esStorico.serie[i-1].rip || "Rip";
+                        }
+                        html += `<tr>
+                                    <td><strong style="color:var(--text-muted);">${i}</strong></td>
+                                    <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}" oninput="verificaCompletamento(this)"></td>
+                                    <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}" oninput="verificaCompletamento(this)"></td>
+                                 </tr>`;
                     }
-                    html += `<tr>
-                                <td><strong style="color:var(--text-muted);">${i}</strong></td>
-                                <td><input type="number" class="input-inline exec-kg" placeholder="${prevKg}" oninput="verificaCompletamento(this)"></td>
-                                <td><input type="number" class="input-inline exec-rip" placeholder="${prevRip}" oninput="verificaCompletamento(this)"></td>
-                             </tr>`;
+                    html += `</tbody></table>`;
                 }
-                html += `</tbody></table></div>`;
+
+                html += `<div style="padding: 1rem 0 0 0; text-align: left;">
+                            <button class="btn btn-outline btn-small" onclick="segnaEsercizioCompletato(this)">✅ Segna come Completato</button>
+                         </div></div>`;
             });
 
             container.innerHTML = html;
@@ -795,24 +834,41 @@
 
             document.querySelectorAll('#esegui-content .active-exercise').forEach(blocco => {
                 const nomeEsercizio = blocco.querySelector('.exec-es-nome').innerText;
+                const categoria = blocco.getAttribute('data-categoria');
                 const targetSerie = blocco.getAttribute('data-target-serie');
                 const targetRip = blocco.getAttribute('data-target-rip');
+                const isCardio = categoria === 'riscaldamento' || categoria === 'post_allenamento';
+                const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
                 
                 const serieEseguite = [];
-                blocco.querySelectorAll('tbody tr').forEach((riga) => {
-                    const kgInput = riga.querySelector('.exec-kg');
-                    const ripInput = riga.querySelector('.exec-rip');
-                    let kgVal = kgInput.value.trim(); 
-                    let ripVal = ripInput.value.trim();
 
-                    if(!kgVal && !isNaN(parseFloat(kgInput.placeholder))) kgVal = kgInput.placeholder;
-                    if(!ripVal && !isNaN(parseInt(ripInput.placeholder))) ripVal = ripInput.placeholder;
+                if (isCardio) {
+                    if (isDone) {
+                        let tempoPrevisto = blocco.getAttribute('data-recupero') || 'N/A';
+                        serieEseguite.push({ min: tempoPrevisto !== 'N/A' ? tempoPrevisto : 'Completato' });
+                    }
+                } else {
+                    blocco.querySelectorAll('tbody tr').forEach((riga) => {
+                        const kgInput = riga.querySelector('.exec-kg');
+                        const ripInput = riga.querySelector('.exec-rip');
+                        let kgVal = kgInput.value.trim(); 
+                        let ripVal = ripInput.value.trim();
 
-                    if(kgVal || ripVal) serieEseguite.push({ kg: kgVal || 0, rip: ripVal || 0 });
-                });
+                        if(!kgVal && !isNaN(parseFloat(kgInput.placeholder))) kgVal = kgInput.placeholder;
+                        if(!ripVal && !isNaN(parseInt(ripInput.placeholder))) ripVal = ripInput.placeholder;
+
+                        // Se l'utente ha premuto Completato ma non ha inserito nulla (e non c'erano placeholder), salviamo a 0.
+                        if (isDone && !kgVal && !ripVal) {
+                            kgVal = 0;
+                            ripVal = 0;
+                        }
+
+                        if(kgVal || ripVal) serieEseguite.push({ kg: kgVal || 0, rip: ripVal || 0 });
+                    });
+                }
                 
                 if(serieEseguite.length > 0) {
-                    record.eserciziFatti.push({ nome: nomeEsercizio, targetSerie, targetRip, serie: serieEseguite });
+                    record.eserciziFatti.push({ nome: nomeEsercizio, categoria, targetSerie, targetRip, serie: serieEseguite });
                 }
             });
 
@@ -833,7 +889,7 @@
             container.innerHTML = '';
 
             if(diario.length === 0) {
-                container.innerHTML = '<p>Nessun dato. Vai ad allenarti.</p>';
+                container.innerHTML = '<p>Nessun allenamento registrato nel diario.</p>';
                 return;
             }
 
@@ -849,8 +905,13 @@
                                 <div style="display:grid; gap: 0.5rem;">`;
                 
                 record.eserciziFatti.forEach(es => {
-                    let intentLog = (es.targetSerie && es.targetRip) ? ` <span style="color:var(--text-muted); font-size:0.75rem;">[Obiettivo: ${es.targetSerie}x${es.targetRip}]</span>` : '';
-                    let logSerie = es.serie.map(s => `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:0.85rem; white-space:nowrap;">${s.kg}kg x ${s.rip}</span>`).join(' ');
+                    const isCardio = es.categoria === 'riscaldamento' || es.categoria === 'post_allenamento';
+                    let intentLog = (!isCardio && es.targetSerie && es.targetRip) ? ` <span style="color:var(--text-muted); font-size:0.75rem;">[Obiettivo: ${es.targetSerie}x${es.targetRip}]</span>` : '';
+                    
+                    let logSerie = es.serie.map(s => {
+                        if (s.min !== undefined) return `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:0.85rem; white-space:nowrap;">⏱️ ${s.min}</span>`;
+                        return `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:0.85rem; white-space:nowrap;">${s.kg}kg x ${s.rip}</span>`;
+                    }).join(' ');
                     
                     html += `<div style="display:flex; flex-direction:column; gap:0.25rem;">
                                 <strong style="font-size:0.9rem;">${es.nome}${intentLog}</strong>
