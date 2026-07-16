@@ -4,56 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Schede Palestra</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️</text></svg>">
     <style>
         :root {
-            /* TEMA CHIARO */
             --primary: #ffcc00;
             --primary-hover: #e6b800;
             --primary-text: #242424; 
             --target-color: #d48806; 
-            
             --danger: #ef4444;
             --danger-hover: #dc2626;
             --success: #10b981;
             --success-hover: #059669;
-            
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #242424;
             --text-muted: #64748b;
             --border: #e2e8f0;
             --input-bg: #f1f5f9;
-            
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 12px;
         }
 
         [data-theme="dark"] {
-            /* TEMA SCURO */
             --primary: #ffcc00;
             --primary-hover: #e6b800;
             --primary-text: #242424;
             --target-color: #ffcc00; 
-            
             --danger: #ef4444;
             --danger-hover: #f87171;
             --success: #10b981;
             --success-hover: #34d399;
-            
             --bg: #151515; 
             --card-bg: #242424; 
             --text: #f8fafc;
             --text-muted: #a1a1aa;
             --border: #3f3f3f;
             --input-bg: #1a1a1a;
-            
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
         
-        /* Navbar */
         nav { background: var(--card-bg); padding: 1rem; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .nav-container { max-width: 800px; margin: 0 auto; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center; }
         .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
@@ -66,13 +58,11 @@
         .nav-utils button { font-size: 1.2rem; padding: 0.5rem; border-radius: 50%; background: var(--input-bg); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
         .nav-utils button:hover { background: var(--border); color: var(--text); }
 
-        /* Main Content */
         main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
         .view { display: none; animation: fadeIn 0.3s ease-in-out; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Typography & Utilities */
         h1, h2, h3 { margin-bottom: 1rem; color: var(--text); font-weight: 700; }
         h1 { font-size: 1.8rem; letter-spacing: -0.025em; }
         p { color: var(--text-muted); }
@@ -80,15 +70,12 @@
         .btn { background: var(--primary); color: var(--primary-text); border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, background 0.2s, box-shadow 0.2s; }
         .btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .btn:active { transform: translateY(0); box-shadow: none; }
-        
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { background: var(--danger-hover); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: var(--success-hover); }
-        
         .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; box-shadow: none; }
         .btn-small:hover { transform: translateY(-1px); }
-        
         .btn-outline { background: transparent; border: 2px dashed var(--border); color: var(--text-muted); box-shadow: none; }
         .btn-outline:hover { background: var(--input-bg); border-color: var(--primary); color: var(--text); transform: translateY(0); }
         
@@ -96,35 +83,14 @@
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2); }
         ::placeholder { color: var(--text-muted); opacity: 0.7; }
         
-        /* Cards */
         .card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1.5rem; border: 1px solid var(--border); }
+        .workout-card { background: var(--input-bg); padding: 1.5rem; margin-bottom: 1rem; border-radius: 0 var(--radius) var(--radius) 0; border-left: 4px solid var(--primary); }
         
-        .workout-card { 
-            background: var(--input-bg); 
-            padding: 1.5rem; 
-            margin-bottom: 1rem; 
-            border-radius: 0 var(--radius) var(--radius) 0;
-            border-left: 4px solid var(--primary); 
-        }
-        
-        /* Struttura Editor Riga Esercizio */
-        .exercise-row { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 0.75rem; 
-            background: var(--card-bg); 
-            padding: 1.25rem; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            margin-bottom: 0.75rem; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
-        }
-        
+        .exercise-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: var(--card-bg); padding: 1.25rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .input-group { display: flex; flex-direction: column; gap: 0.3rem; }
         .input-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .input-group input, .input-group select { margin-bottom: 0; }
-
-        /* Controlli di riordino */
+        
         .row-controls { grid-column: 1 / -1; display: flex; gap: 0.5rem; justify-content: flex-start; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
         .btn-move { padding: 0.4rem 0.8rem; font-size: 1rem; background: var(--input-bg); border: 1px solid var(--border); cursor: pointer; border-radius: 6px; color: var(--text-muted); transition: all 0.2s; }
         .btn-move:hover { background: var(--border); color: var(--text); }
@@ -146,7 +112,6 @@
             .group-del button { width: auto; padding: 0.75rem 1rem; }
         }
 
-        /* Esecuzione Attiva */
         .active-exercise { border-left-color: var(--danger); transition: border-left-color 0.3s ease; }
         .active-exercise.completed { border-left-color: var(--success); }
 
@@ -161,7 +126,6 @@
         .table-esegui th { text-align: center; padding-bottom: 0.25rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .table-esegui td { text-align: center; padding: 0.25rem 0; }
         
-        /* Tabella Dettaglio */
         .detail-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
         .detail-table th { border-bottom: 2px solid var(--border); padding: 0.75rem 0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
         .detail-table td { border-bottom: 1px solid var(--border); padding: 1rem 0; }
@@ -170,29 +134,28 @@
         .badge-history { background: var(--primary); color: var(--primary-text); margin-left: auto; }
 
         .timer-btn { transition: all 0.2s; min-width: 90px; }
-        
-        /* Fix Stato Hover per Timer su Mobile */
         .timer-btn.timer-active { background: var(--input-bg) !important; color: var(--primary) !important; border-color: var(--primary) !important; }
         .timer-btn.timer-done { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
 
-        /* Progress Bar */
         .progress-container { width: 100%; margin-top: 2.5rem; margin-bottom: 1rem; }
         .progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s ease, background-color 0.3s ease; }
 
-        /* MODALE CUSTOM */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.2s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.2s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); width: 90%; max-width: 420px; transform: translateY(20px); transition: transform 0.2s ease; border: 1px solid var(--border); }
+        .modal-card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); width: 90%; max-width: 420px; transform: translateY(20px); transition: transform 0.2s ease; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
         
-        /* Utilità Dashboard */
         .dashboard-panel { background: var(--input-bg); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 1.5rem; }
         .data-management { display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap; justify-content: center; }
 
-        /* Stile Timer Globale */
         .global-timer { background: var(--primary); color: var(--primary-text); font-weight: 800; padding: 0.4rem 1rem; border-radius: 20px; font-size: 1.1rem; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 0.5rem; }
+        .inp-giorno-nome { margin: 0; font-size: 1.1rem; font-weight: bold; background: transparent; border: none; border-bottom: 2px dashed var(--border); border-radius: 0; padding: 0.2rem; flex: 1; color: var(--text); }
+        .inp-giorno-nome:focus { border-color: var(--primary); box-shadow: none; }
+
+        .btn-img-preview { background: var(--input-bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .btn-img-preview:hover { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -218,8 +181,9 @@
             <div id="home-dynamic-content"></div>
             <div id="home-schede-list" style="margin-top: 1.5rem;"></div>
             <div class="data-management">
-                <button class="btn btn-outline btn-small" onclick="esportaDati()">📥 Esporta Backup Dati</button>
-                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">📤 Importa Backup</button>
+                <button class="btn btn-outline btn-small" onclick="apriModalCustom()">⚙️ Esercizi Custom</button>
+                <button class="btn btn-outline btn-small" onclick="esportaDati()">📥 Esporta Dati</button>
+                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">📤 Importa Dati</button>
                 <input type="file" id="import-file" style="display:none" accept=".json" onchange="importaDati(event)">
             </div>
         </section>
@@ -292,6 +256,47 @@
             <div class="modal-actions">
                 <button id="modal-btn-cancel" class="btn btn-outline">Annulla</button>
                 <button id="modal-btn-confirm" class="btn">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-preview-modal" class="modal-overlay" onclick="chiudiModalImmagine(event)">
+        <div class="modal-card" style="max-width: 600px; text-align: center;" onclick="event.stopPropagation()">
+            <h3 id="img-preview-title" style="margin-top: 0; margin-bottom: 1rem;">Esecuzione Esercizio</h3>
+            <div id="img-preview-container" style="background: var(--input-bg); border-radius: 8px; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem;">
+                <img id="img-preview-target" style="max-width: 100%; max-height: 60vh; object-fit: contain; display: none;" alt="Preview Esercizio">
+                <p id="img-preview-error" style="color: var(--text-muted); font-size: 0.9rem; padding: 1rem;">Caricamento immagine...</p>
+            </div>
+            <button class="btn btn-outline" style="width: 100%;" onclick="chiudiModalImmagine(null, true)">Chiudi Visualizzatore</button>
+        </div>
+    </div>
+
+    <div id="modal-esercizi-custom" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Database Esercizi Personali</h3>
+            
+            <div class="input-group" style="margin-bottom: 1rem;">
+                <label>Seleziona Muscolo</label>
+                <select id="custom-cat-select"></select>
+            </div>
+            <div class="input-group" style="margin-bottom: 1rem;">
+                <label>Nome Nuovo Esercizio</label>
+                <input type="text" id="custom-es-nome" placeholder="Es: Panca declinata manubri...">
+            </div>
+            <div class="input-group" style="margin-bottom: 1.5rem;">
+                <label>URL Immagine (Opzionale)</label>
+                <input type="text" id="custom-es-img" placeholder="https://link-immagine.com/foto.gif">
+                <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">Inserisci un link diretto all'immagine. Non appesantisce il database.</span>
+            </div>
+            
+            <button class="btn btn-success" style="width: 100%; margin-bottom: 1.5rem;" onclick="aggiungiEsercizioCustom()">+ Aggiungi al Database</button>
+
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">I tuoi esercizi custom per questa categoria:</label>
+            <div id="lista-esercizi-custom" style="max-height: 200px; overflow-y: auto; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; background: var(--input-bg);">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-outline" style="width: 100%;" onclick="chiudiModalCustom()">Chiudi</button>
             </div>
         </div>
     </div>
@@ -497,6 +502,59 @@
             activeTimers[timerId].interval = intervalId;
         }
 
+        // --- GESTIONE IMMAGINI ESERCIZI ---
+        function apriModalImmagine(nomeEsercizio) {
+            const modal = document.getElementById('image-preview-modal');
+            const title = document.getElementById('img-preview-title');
+            const img = document.getElementById('img-preview-target');
+            const errorText = document.getElementById('img-preview-error');
+
+            title.innerText = nomeEsercizio;
+            img.style.display = 'none';
+            errorText.style.display = 'block';
+            errorText.innerText = "Caricamento...";
+            
+            let targetUrl = null;
+            let pathAtteso = '';
+
+            for (const cat in eserciziCustomUrl) {
+                if (eserciziCustomUrl[cat][nomeEsercizio]) {
+                    targetUrl = eserciziCustomUrl[cat][nomeEsercizio];
+                    break;
+                }
+            }
+
+            if (!targetUrl) {
+                const nomeFormattato = nomeEsercizio.toLowerCase().trim().replace(/\s+/g, '_');
+                targetUrl = `img/${nomeFormattato}.gif`;
+                pathAtteso = targetUrl;
+            }
+
+            img.onload = function() {
+                img.style.display = 'block';
+                errorText.style.display = 'none';
+            };
+            
+            img.onerror = function() {
+                img.style.display = 'none';
+                errorText.style.display = 'block';
+                if(pathAtteso) {
+                    errorText.innerHTML = `Immagine non trovata nel sistema locale.<br><br><span style="font-size: 0.8rem; opacity:0.7">Percorso previsto: <strong>${pathAtteso}</strong></span>`;
+                } else {
+                    errorText.innerText = "URL immagine non valido o immagine non trovata.";
+                }
+            };
+
+            img.src = targetUrl;
+            modal.classList.add('active');
+        }
+
+        function chiudiModalImmagine(e, forzato = false) {
+            if (forzato || e.target === document.getElementById('image-preview-modal')) {
+                document.getElementById('image-preview-modal').classList.remove('active');
+            }
+        }
+
         // --- PROGRESSO ALLENAMENTO ---
         function aggiornaProgressoAllenamento() {
             const blocchi = document.querySelectorAll('#esegui-content .active-exercise');
@@ -560,7 +618,7 @@
             salvaStatoAllenamento();
         }
 
-        // --- DATABASE E STATO ---
+        // --- DATABASE MASTER E CUSTOM ---
         const eserciziDB = {
             "gambe": ["squat", "v-squat", "pressa 45 gradi", "pressa iso-lateral", "leg extension", "standing leg curl", "kneeling leg curl", "affondi", "standing gluteus", "adductor", "abductor", "calf machine", "multipower", "stacchi", "pendulum squat"],
             "petto": ["panca piana", "panca inclinata", "panca declinata", "horizontal press", "dip machine", "pec fly", "chest press incline", "chest press", "croci su panca piana", "croci su panca inclinata", "croci su panca declinata", "distensioni manubri", "pullover", "croci ai cavi", "parallele"],
@@ -575,13 +633,133 @@
 
         let schede = JSON.parse(localStorage.getItem('schedePalestra')) || [];
         let diario = JSON.parse(localStorage.getItem('diarioPalestra')) || [];
+        let rawCustom = JSON.parse(localStorage.getItem('eserciziCustom')) || {};
+        let eserciziCustom = {}; 
+        let eserciziCustomUrl = {}; 
+
+        for(let c in rawCustom) {
+            eserciziCustom[c] = [];
+            eserciziCustomUrl[c] = {};
+            rawCustom[c].forEach(item => {
+                if (typeof item === 'string') {
+                    eserciziCustom[c].push(item);
+                } else if (typeof item === 'object') {
+                    eserciziCustom[c].push(item.nome);
+                    if(item.img) eserciziCustomUrl[c][item.nome] = item.img;
+                }
+            });
+        }
 
         function salvaDati() { localStorage.setItem('schedePalestra', JSON.stringify(schede)); }
         function salvaDiario() { localStorage.setItem('diarioPalestra', JSON.stringify(diario)); }
+        
+        function salvaEserciziCustom() { 
+            let dataToSave = {};
+            for(let c in eserciziCustom) {
+                dataToSave[c] = eserciziCustom[c].map(nome => {
+                    return { nome: nome, img: eserciziCustomUrl[c][nome] || "" };
+                });
+            }
+            localStorage.setItem('eserciziCustom', JSON.stringify(dataToSave)); 
+        }
+
+        // --- GESTIONE ESERCIZI CUSTOM ---
+        function apriModalCustom() {
+            let catOptions = '<option value="">Seleziona Muscolo...</option>';
+            for(let cat in eserciziDB) {
+                catOptions += `<option value="${cat}">${cat.toUpperCase().replace(/_/g, ' ')}</option>`;
+            }
+            const selectCat = document.getElementById('custom-cat-select');
+            selectCat.innerHTML = catOptions;
+            selectCat.onchange = renderListaCustom;
+            
+            document.getElementById('custom-es-nome').value = '';
+            document.getElementById('custom-es-img').value = '';
+            renderListaCustom();
+            document.getElementById('modal-esercizi-custom').classList.add('active');
+        }
+
+        function chiudiModalCustom() {
+            document.getElementById('modal-esercizi-custom').classList.remove('active');
+            document.querySelectorAll('.sel-cat').forEach(selectCategoria => {
+                const valCorrente = selectCategoria.closest('.exercise-row').querySelector('.sel-es').value;
+                aggiornaEsercizi(selectCategoria, valCorrente);
+            });
+        }
+
+        function aggiungiEsercizioCustom() {
+            const cat = document.getElementById('custom-cat-select').value;
+            const nome = document.getElementById('custom-es-nome').value.trim();
+            const imgUrl = document.getElementById('custom-es-img').value.trim();
+
+            if(!cat || !nome) {
+                alert("Seleziona una categoria e inserisci il nome dell'esercizio.");
+                return;
+            }
+
+            if(!eserciziCustom[cat]) {
+                eserciziCustom[cat] = [];
+                eserciziCustomUrl[cat] = {};
+            }
+            
+            const nomeLower = nome.toLowerCase();
+            const esisteNelDB = eserciziDB[cat] && eserciziDB[cat].map(e => e.toLowerCase()).includes(nomeLower);
+            const esisteNeiCustom = eserciziCustom[cat].map(e => e.toLowerCase()).includes(nomeLower);
+
+            if(esisteNelDB || esisteNeiCustom) {
+                alert("L'esercizio esiste già per questa categoria.");
+                return;
+            }
+
+            eserciziCustom[cat].push(nome);
+            if(imgUrl) eserciziCustomUrl[cat][nome] = imgUrl;
+            
+            salvaEserciziCustom();
+            document.getElementById('custom-es-nome').value = '';
+            document.getElementById('custom-es-img').value = '';
+            renderListaCustom();
+        }
+
+        function eliminaEsercizioCustom(cat, nome) {
+            if(eserciziCustom[cat]) {
+                eserciziCustom[cat] = eserciziCustom[cat].filter(e => e !== nome);
+                if(eserciziCustomUrl[cat] && eserciziCustomUrl[cat][nome]) {
+                    delete eserciziCustomUrl[cat][nome];
+                }
+                salvaEserciziCustom();
+                renderListaCustom();
+            }
+        }
+
+        function renderListaCustom() {
+            const cat = document.getElementById('custom-cat-select').value;
+            const container = document.getElementById('lista-esercizi-custom');
+            
+            if(!cat || !eserciziCustom[cat] || eserciziCustom[cat].length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center;">Nessun esercizio custom presente in questa categoria.</p>';
+                return;
+            }
+
+            let html = '';
+            eserciziCustom[cat].forEach(es => {
+                let imgBadge = eserciziCustomUrl[cat] && eserciziCustomUrl[cat][es] ? `<span title="Immagine allegata" style="font-size:0.8rem; margin-left:0.5rem;">🔗</span>` : '';
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:var(--card-bg); margin-bottom:0.4rem; border-radius:4px; border:1px solid var(--border);">
+                            <span style="font-weight:600; color:var(--text);">${es}${imgBadge}</span>
+                            <button class="btn-small btn-outline" style="border-color:var(--danger); color:var(--danger); padding:0.2rem 0.5rem;" onclick="eliminaEsercizioCustom('${cat}', '${es.replace(/'/g, "\\'")}')">Elimina</button>
+                         </div>`;
+            });
+            container.innerHTML = html;
+        }
 
         // --- GESTIONE DATI (IMPORT/EXPORT) ---
         function esportaDati() {
-            const data = { schede: schede, diario: diario };
+            let datiCustomPuliti = {};
+            for(let c in eserciziCustom) {
+                datiCustomPuliti[c] = eserciziCustom[c].map(nome => {
+                    return { nome: nome, img: eserciziCustomUrl[c][nome] || "" };
+                });
+            }
+            const data = { schede: schede, diario: diario, eserciziCustom: datiCustomPuliti };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
             const dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
@@ -602,8 +780,26 @@
                         if (confermato) {
                             schede = data.schede;
                             diario = data.diario;
+                            
+                            eserciziCustom = {};
+                            eserciziCustomUrl = {};
+                            const importCustom = data.eserciziCustom || {};
+                            for(let c in importCustom) {
+                                eserciziCustom[c] = [];
+                                eserciziCustomUrl[c] = {};
+                                importCustom[c].forEach(item => {
+                                    if (typeof item === 'string') {
+                                        eserciziCustom[c].push(item);
+                                    } else if (typeof item === 'object') {
+                                        eserciziCustom[c].push(item.nome);
+                                        if(item.img) eserciziCustomUrl[c][item.nome] = item.img;
+                                    }
+                                });
+                            }
+
                             salvaDati();
                             salvaDiario();
+                            salvaEserciziCustom();
                             customAlert("Dati ripristinati con successo dal file di backup.", "Operazione Riuscita");
                             renderHome(); 
                         }
@@ -628,11 +824,19 @@
             const statoInCorsoStr = localStorage.getItem('allenamentoInCorso');
             if(statoInCorsoStr) {
                 const statoInCorso = JSON.parse(statoInCorsoStr);
-                const nomeSchedaSos = schede.find(s => s.id === statoInCorso.schedaId)?.nome || 'Sconosciuta';
+                const schedaTrovata = schede.find(s => String(s.id) === String(statoInCorso.schedaId));
+                const nomeSchedaSos = schedaTrovata?.nome || 'Sconosciuta';
+                
+                let nomeGioroSos = 'S' + statoInCorso.giornoId;
+                if(schedaTrovata) {
+                    const allSos = schedaTrovata.allenamenti.find(a => a.giorno === statoInCorso.giornoId);
+                    if(allSos && allSos.nomeGiorno) nomeGioroSos = allSos.nomeGiorno;
+                }
+
                 htmlDynamic += `
                     <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
                         <h3 style="color: var(--danger); margin-top: 0; margin-bottom: 0.5rem;">⚠️ Sessione in Sospeso</h3>
-                        <p style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--text);">Stavi eseguendo <strong>${nomeSchedaSos} (S${statoInCorso.giornoId})</strong>.</p>
+                        <p style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--text);">Stavi eseguendo <strong>${nomeSchedaSos} (${nomeGioroSos})</strong>.</p>
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button class="btn btn-danger" style="flex: 1; padding: 1rem;" onclick="riprendiAllenamento()">▶ Riprendi Ora</button>
                             <button class="btn btn-outline" style="padding: 1rem; border-color: var(--danger); color: var(--danger);" onclick="eliminaAllenamentoInCorso()">Scarta</button>
@@ -647,15 +851,19 @@
                 let nextDay = 1;
                 let nextBtnHtml = '';
 
+                let lastNomeGiorno = last.nomeGiorno || 'S' + last.giorno;
+
                 if (scheda) {
                     nextDay = last.giorno < scheda.allenamenti.length ? last.giorno + 1 : 1;
-                    nextBtnHtml = `<button class="btn btn-success" style="width:100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="iniziaAllenamento('${scheda.id}', ${nextDay})">▶ Avvia Prossimo: ${scheda.nome} (S${nextDay})</button>`;
+                    const nextAll = scheda.allenamenti.find(a => a.giorno === nextDay) || scheda.allenamenti[0];
+                    const nextNome = nextAll.nomeGiorno || 'S' + nextAll.giorno;
+                    nextBtnHtml = `<button class="btn btn-success" style="width:100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="iniziaAllenamento('${scheda.id}', ${nextAll.giorno})">▶ Avvia Prossimo: ${scheda.nome} (${nextNome})</button>`;
                 }
 
                 htmlDynamic += `
                     <div class="dashboard-panel">
                         <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 0.25rem;">Riepilogo Ultima Sessione</p>
-                        <p style="margin: 0; font-weight: 700; font-size: 1.1rem;">${last.schedaNome} - S${last.giorno} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9rem;">(${last.dataString.split(' - ')[0]})</span></p>
+                        <p style="margin: 0; font-weight: 700; font-size: 1.1rem;">${last.schedaNome} - ${lastNomeGiorno} <span style="font-weight: normal; color: var(--text-muted); font-size: 0.9rem;">(${last.dataString.split(' - ')[0]})</span></p>
                         <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">${last.eserciziFatti.length} esercizi completati con successo.</p>
                     </div>
                     ${nextBtnHtml}
@@ -738,8 +946,11 @@
             
             dayDiv.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 class="day-title" style="margin:0;">Allenamento</h3>
-                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="this.closest('.workout-card').remove(); aggiornaTitoliGiorni();">Elimina Sessione</button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; width: 70%;">
+                        <span class="day-number-badge" style="background: var(--primary); color: var(--primary-text); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; font-size: 0.9rem;"></span>
+                        <input type="text" class="inp-giorno-nome" placeholder="Nome Sessione (es. Spinta)" value="${giornoEsistente && giornoEsistente.nomeGiorno ? String(giornoEsistente.nomeGiorno).replace(/"/g, '&quot;') : ''}">
+                    </div>
+                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="this.closest('.workout-card').remove(); aggiornaTitoliGiorni();">Elimina</button>
                 </div>
                 <div class="esercizi-container" id="${uniqueId}"></div>
                 <button class="btn btn-outline btn-small" style="margin-top: 1rem; width:100%;" onclick="aggiungiEsercizioUI('${uniqueId}')">+ Aggiungi Esercizio</button>
@@ -754,15 +965,17 @@
         }
 
         function aggiornaTitoliGiorni() {
-            const giorni = document.querySelectorAll('#editor-allenamenti .workout-card .day-title');
-            giorni.forEach((titolo, index) => { titolo.innerText = `Sessione ${index + 1}`; });
+            const giorni = document.querySelectorAll('#editor-allenamenti .workout-card');
+            giorni.forEach((card, index) => { 
+                const badge = card.querySelector('.day-number-badge');
+                if(badge) badge.innerText = index + 1;
+            });
         }
 
         function aggiungiEsercizioUI(containerId, datiEsistenti = null) {
             const container = document.getElementById(containerId);
             const row = document.createElement('div');
             row.className = 'exercise-row';
-            const dlId = 'dl-es-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
 
             let categorieOptions = '<option value="">Seleziona...</option>';
             for(let cat in eserciziDB) {
@@ -785,8 +998,7 @@
                 
                 <div class="input-group group-es">
                     <label>Esercizio</label>
-                    <input type="text" class="inp-es" placeholder="Seleziona o digita custom..." list="${dlId}" value="${datiEsistenti ? datiEsistenti.esercizio : ''}">
-                    <datalist id="${dlId}"></datalist>
+                    <select class="sel-es"><option value="">Seleziona prima il muscolo...</option></select>
                 </div>
                 
                 <div class="input-group group-serie">
@@ -801,12 +1013,12 @@
                 
                 <div class="input-group group-rec">
                     <label>Recupero / Durata</label>
-                    <input type="text" class="inp-rec" placeholder="Es. 90s / 10m" value="${datiEsistenti ? datiEsistenti.recupero : ''}">
+                    <input type="text" class="inp-rec" placeholder="Es. 90s / 10m" value="${datiEsistenti && datiEsistenti.recupero ? String(datiEsistenti.recupero).replace(/"/g, '&quot;') : ''}">
                 </div>
 
                 <div class="input-group group-note">
                     <label>Note / Varianti (Opzionale)</label>
-                    <input type="text" class="inp-note" placeholder="Es. presa stretta, fermo 1s..." value="${datiEsistenti && datiEsistenti.note ? datiEsistenti.note : ''}">
+                    <input type="text" class="inp-note" placeholder="Es. presa stretta, fermo 1s..." value="${datiEsistenti && datiEsistenti.note ? String(datiEsistenti.note).replace(/"/g, '&quot;') : ''}">
                 </div>
                 
                 <div class="group-del">
@@ -816,7 +1028,7 @@
             container.appendChild(row);
 
             if(datiEsistenti && datiEsistenti.categoria) {
-                aggiornaEsercizi(row.querySelector('.sel-cat'));
+                aggiornaEsercizi(row.querySelector('.sel-cat'), datiEsistenti.esercizio);
             }
             aggiornaNumeriEsercizi(container);
         }
@@ -834,14 +1046,20 @@
             aggiornaNumeriEsercizi(container);
         }
 
-        function aggiornaEsercizi(selectCategoria) {
+        function aggiornaEsercizi(selectCategoria, esercizioPreselezionato = null) {
             const categoria = selectCategoria.value;
-            const datalist = selectCategoria.closest('.exercise-row').querySelector('datalist');
-            datalist.innerHTML = '';
+            const selectEsercizio = selectCategoria.closest('.exercise-row').querySelector('.sel-es');
+            selectEsercizio.innerHTML = '<option value="">Seleziona Esercizio...</option>';
             
-            if(categoria && eserciziDB[categoria]) {
-                eserciziDB[categoria].forEach(es => {
-                    datalist.innerHTML += `<option value="${es}">`;
+            if(categoria) {
+                const standard = eserciziDB[categoria] || [];
+                const custom = eserciziCustom[categoria] || [];
+                const tutti = [...standard, ...custom].sort((a, b) => a.localeCompare(b));
+
+                tutti.forEach(es => {
+                    const selected = esercizioPreselezionato === es ? 'selected' : '';
+                    const labelExtra = custom.includes(es) ? ' (Custom)' : '';
+                    selectEsercizio.innerHTML += `<option value="${es}" ${selected}>${es}${labelExtra}</option>`;
                 });
             }
         }
@@ -854,22 +1072,24 @@
 
             const allenamenti = [];
             document.querySelectorAll('#editor-allenamenti .workout-card').forEach((node, index) => {
+                const nomeGiorno = node.querySelector('.inp-giorno-nome').value.trim() || `Sessione ${index + 1}`;
                 const esercizi = [];
+                
                 node.querySelectorAll('.exercise-row').forEach(riga => {
                     const categoria = riga.querySelector('.sel-cat').value;
-                    const esercizio = riga.querySelector('.inp-es').value.trim();
+                    const esercizio = riga.querySelector('.sel-es').value;
                     const serie = riga.querySelector('.inp-serie').value;
                     const ripetizioni = riga.querySelector('.inp-rip').value;
-                    const recupero = riga.querySelector('.inp-rec').value;
+                    const recupero = riga.querySelector('.inp-rec').value.trim();
                     const note = riga.querySelector('.inp-note').value.trim();
 
                     if(categoria && esercizio) esercizi.push({ categoria, esercizio, serie, ripetizioni, recupero, note });
                 });
-                allenamenti.push({ giorno: index + 1, esercizi });
+                allenamenti.push({ giorno: index + 1, nomeGiorno: nomeGiorno, esercizi });
             });
 
             const nuovaScheda = { id, nome, allenamenti };
-            const index = schede.findIndex(s => s.id === id);
+            const index = schede.findIndex(s => String(s.id) === String(id));
             if(index > -1) schede[index] = nuovaScheda; else schede.push(nuovaScheda);
 
             salvaDati();
@@ -904,16 +1124,17 @@
         }
 
         function mostraDettaglio(id) {
-            const scheda = schede.find(s => s.id === id);
+            const scheda = schede.find(s => String(s.id) === String(id));
             if(!scheda) return;
 
             const container = document.getElementById('dettaglio-content');
             let html = `<h2 style="font-size: 1.5rem;">${scheda.nome}</h2>`;
 
             scheda.allenamenti.forEach(all => {
+                const nomeGiorno = all.nomeGiorno || `Sessione ${all.giorno}`;
                 html += `<div class="workout-card" style="border-left-color: var(--primary);">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <h3 style="margin:0;">Sessione ${all.giorno}</h3>
+                                <h3 style="margin:0;">${nomeGiorno}</h3>
                                 <button class="btn btn-primary btn-small" onclick="iniziaAllenamento('${scheda.id}', ${all.giorno})">▶ Avvia Workout</button>
                             </div>
                             <table class="detail-table">
@@ -937,7 +1158,7 @@
         }
 
         function modificaScheda(id) {
-            const scheda = schede.find(s => s.id === id);
+            const scheda = schede.find(s => String(s.id) === String(id));
             if(!scheda) return;
 
             document.getElementById('editor-title').innerText = `Modifica: ${scheda.nome}`;
@@ -952,73 +1173,19 @@
         async function eliminaScheda(id) {
             const confermato = await customConfirm("Eliminare questa scheda in modo permanente?", "Azione Irreversibile");
             if(confermato) {
-                schede = schede.filter(s => s.id !== id);
+                schede = schede.filter(s => String(s.id) !== String(id));
                 salvaDati();
                 renderListaSchede();
             }
         }
 
-        // --- SISTEMA DI SALVATAGGIO STATO ALLENAMENTO ---
-        function salvaStatoAllenamento() {
-            if(!document.getElementById('view-esegui').classList.contains('active')) return;
-            
-            const schedaId = document.getElementById('esegui-scheda-id').value;
-            const giornoId = document.getElementById('esegui-giorno').value;
-            if(!schedaId || !giornoId) return;
-
-            let startTime = Date.now();
-            const prevStato = localStorage.getItem('allenamentoInCorso');
-            if(prevStato) {
-                const parsed = JSON.parse(prevStato);
-                if(parsed.startTime) startTime = parsed.startTime;
-            }
-
-            const stato = {
-                schedaId: schedaId,
-                giornoId: parseInt(giornoId),
-                timestamp: Date.now(),
-                startTime: startTime,
-                blocchi: []
-            };
-
-            document.querySelectorAll('#esegui-content .active-exercise').forEach((blocco, index) => {
-                const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
-                const inputs = [];
-                blocco.querySelectorAll('input').forEach(inp => {
-                    inputs.push({ value: inp.value });
-                });
-                
-                let timerState = null;
-                if(activeTimers['timer_' + index]) {
-                    timerState = activeTimers['timer_' + index].endTime;
-                }
-
-                stato.blocchi.push({ isDone, inputs, timerEndTime: timerState });
-            });
-
-            localStorage.setItem('allenamentoInCorso', JSON.stringify(stato));
-        }
-
-        function eliminaAllenamentoInCorso() {
-            localStorage.removeItem('allenamentoInCorso');
-            renderHome();
-        }
-
-        async function annullaAllenamento() {
-            const confirm = await customConfirm("Vuoi annullare la sessione? Tutti i progressi non terminati andranno persi.", "Annulla Sessione");
-            if(confirm) {
-                localStorage.removeItem('allenamentoInCorso');
-                pulisciTimerAttivi();
-                navigate('dettaglio');
-            }
-        }
-
         function costruisciVistaEsecuzione(schedaId, giornoId) {
-            const scheda = schede.find(s => s.id === schedaId);
+            const scheda = schede.find(s => String(s.id) === String(schedaId));
             const allenamento = scheda.allenamenti.find(a => a.giorno === giornoId);
             if(!allenamento) return false;
 
-            document.getElementById('esegui-title').innerText = `${scheda.nome} - S${giornoId}`;
+            const nomeGiorno = allenamento.nomeGiorno || `S${giornoId}`;
+            document.getElementById('esegui-title').innerText = `${scheda.nome} - ${nomeGiorno}`;
             document.getElementById('esegui-scheda-id').value = schedaId;
             document.getElementById('esegui-giorno').value = giornoId;
 
@@ -1051,14 +1218,17 @@
                 let secondiRecupero = parseTempoRecupero(es.recupero);
                 
                 if(secondiRecupero > 0 && !isCardio) {
-                    timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px;" onclick="avviaTimer(this, '${es.recupero}', 'timer_${index}')">⏱️ Timer</button>`;
+                    timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px;" onclick="avviaTimer(this, '${es.recupero.replace(/'/g, "\\'")}', 'timer_${index}')">⏱️ Timer</button>`;
                 }
 
                 let alertNote = es.note ? `<div style="background: rgba(255, 204, 0, 0.1); border-left: 3px solid var(--primary); padding: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text);"><strong>Nota:</strong> ${es.note}</div>` : '';
 
-                html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero || ''}">
+                html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero ? String(es.recupero).replace(/"/g, '&quot;') : ''}">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-                                <h3 class="exec-es-nome" style="margin:0;">${es.esercizio}</h3>
+                                <h3 class="exec-es-nome" style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+                                    ${es.esercizio}
+                                    <button class="btn-img-preview" onclick="apriModalImmagine('${es.esercizio.replace(/'/g, "\\'")}')" title="Vedi Immagine">📸</button>
+                                </h3>
                                 ${historyBadge}
                             </div>
                             <p style="font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center;">
@@ -1136,7 +1306,7 @@
                                 const rimanenti = Math.ceil((bStato.timerEndTime - Date.now()) / 1000);
                                 if(rimanenti > 0) {
                                     const btnTimer = blocchi[index].querySelector('.timer-btn');
-                                    if(btnTimer) avviaTimer(btnTimer, rimanenti + 's', 'timer_' + index, bStato.timerEndTime);
+                                    if(btnTimer) avviaTimer(btnTimer, null, 'timer_' + index, bStato.timerEndTime);
                                 }
                             }
                         }
@@ -1149,9 +1319,12 @@
         async function terminaAllenamento() {
             const schedaId = document.getElementById('esegui-scheda-id').value;
             const giorno = parseInt(document.getElementById('esegui-giorno').value);
-            const scheda = schede.find(s => s.id === schedaId);
+            const scheda = schede.find(s => String(s.id) === String(schedaId));
             const now = new Date();
             
+            const allenamentoData = scheda.allenamenti.find(a => a.giorno === giorno);
+            const nomeGiorno = allenamentoData && allenamentoData.nomeGiorno ? allenamentoData.nomeGiorno : `Sessione ${giorno}`;
+
             let durataTotaleFormat = "00:00";
             const statoStr = localStorage.getItem('allenamentoInCorso');
             if(statoStr) {
@@ -1170,12 +1343,13 @@
                 dataString: now.toLocaleDateString('it-IT') + ' - ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'}),
                 schedaNome: scheda.nome,
                 giorno: giorno,
+                nomeGiorno: nomeGiorno,
                 durata: durataTotaleFormat,
                 eserciziFatti: []
             };
 
             document.querySelectorAll('#esegui-content .active-exercise').forEach(blocco => {
-                const nomeEsercizio = blocco.querySelector('.exec-es-nome').innerText;
+                const nomeEsercizio = blocco.querySelector('.exec-es-nome').childNodes[0].nodeValue.trim(); 
                 const categoria = blocco.getAttribute('data-categoria');
                 const targetSerie = blocco.getAttribute('data-target-serie');
                 const targetRip = blocco.getAttribute('data-target-rip');
@@ -1218,7 +1392,7 @@
                 if(!procedi) return;
                 localStorage.removeItem('allenamentoInCorso');
                 pulisciTimerAttivi();
-                navigate('dettaglio');
+                navigate('home');
                 return;
             }
 
@@ -1227,6 +1401,15 @@
             localStorage.removeItem('allenamentoInCorso');
             pulisciTimerAttivi();
             navigate('storico');
+        }
+
+        async function annullaAllenamento() {
+            const confermato = await customConfirm("Vuoi annullare la sessione? Tutti i progressi non terminati andranno persi.", "Annulla Sessione");
+            if(confermato) {
+                localStorage.removeItem('allenamentoInCorso');
+                pulisciTimerAttivi();
+                navigate('home');
+            }
         }
 
         function renderStorico() {
@@ -1240,13 +1423,14 @@
 
             diario.forEach((record, index) => {
                 let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:var(--input-bg); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid var(--border);">⏱️ Durata: ${record.durata}</span>` : '';
-                
+                const nomeGiorno = record.nomeGiorno || `Sessione ${record.giorno}`;
+
                 let html = `<div class="workout-card" style="border-left-color: var(--text-muted); background: var(--card-bg);">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
                                     <div>
                                         <h3 style="margin:0; font-size:1.1rem;">${record.schedaNome}</h3>
                                         <div style="margin-top:0.2rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                                            <span style="font-size:0.8rem; color:var(--text-muted);">Sessione ${record.giorno} | ${record.dataString}</span>
+                                            <span style="font-size:0.8rem; color:var(--text-muted);">${nomeGiorno} | ${record.dataString}</span>
                                             ${durataBadge}
                                         </div>
                                     </div>
