@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palestra</title>
+    <title>Gestione Schede Palestra</title>
     
+    <!-- PWA Meta Tags per trasformarlo in vera App -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#151515">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Palestra">
+    <meta name="theme-color" content="#ffcc00">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️</text></svg>">
     
     <style>
@@ -258,6 +259,7 @@
         </section>
     </main>
 
+    <!-- Modale Conferma -->
     <div id="custom-modal" class="modal-overlay">
         <div class="modal-card">
             <h3 id="modal-title" style="margin-top: 0;">Conferma</h3>
@@ -269,6 +271,7 @@
         </div>
     </div>
 
+    <!-- Modale Immagine Preview -->
     <div id="image-preview-modal" class="modal-overlay" onclick="chiudiModalImmagine(event)">
         <div class="modal-card" style="max-width: 600px; text-align: center;" onclick="event.stopPropagation()">
             <h3 id="img-preview-title" style="margin-top: 0; margin-bottom: 1rem;">Esecuzione Esercizio</h3>
@@ -280,6 +283,7 @@
         </div>
     </div>
 
+    <!-- Modale Gestione Esercizi Custom -->
     <div id="modal-esercizi-custom" class="modal-overlay">
         <div class="modal-card">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Database Esercizi Personali</h3>
@@ -311,15 +315,6 @@
     </div>
 
     <script>
-        // Registrazione del Service Worker per validazione PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => {
-                    console.log('Service Worker non registrato:', err);
-                });
-            });
-        }
-
         // --- MOTORE MODALI ---
         function customConfirm(message, title = "Attenzione", confirmText = "Conferma", confirmClass = "btn-danger") {
             return new Promise((resolve) => {
@@ -543,8 +538,7 @@
             }
 
             if (!targetUrl) {
-                // Non applichiamo più il replace per gli spazi
-                const nomeFormattato = nomeEsercizio.toLowerCase().trim();
+                const nomeFormattato = nomeEsercizio.trim();
                 targetUrl = `img/${nomeFormattato}.gif`;
                 pathAtteso = targetUrl;
             }
