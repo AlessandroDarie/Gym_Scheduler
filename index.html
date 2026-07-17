@@ -1479,6 +1479,15 @@
                 renderStorico();
             }
         }
+
+        // Registrazione Service Worker per installazione PWA senza badge
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrato con successo.'))
+                    .catch(err => console.error('Errore registrazione Service Worker:', err));
+            });
+        }
     </script>
 </body>
 </html>
