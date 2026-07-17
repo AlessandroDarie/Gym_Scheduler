@@ -10,49 +10,50 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#ffcc00">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️</text></svg>">
-    
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" href="icon-192.png">
+
     <style>
         :root {
-            /* TEMA CHIARO */
-            --primary: #ffcc00;
-            --primary-hover: #e6b800;
-            --primary-text: #242424; 
-            --target-color: #d48806; 
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --success: #10b981;
-            --success-hover: #059669;
-            --bg: #f8fafc;
+            /* TEMA CHIARO - BRUTALISTA */
+            --primary: #000000;
+            --primary-hover: #333333;
+            --primary-text: #ffffff; 
+            --target-color: #666666; 
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --bg: #242424;
             --card-bg: #ffffff;
-            --text: #242424;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --input-bg: #f1f5f9;
+            --text: #171717;
+            --text-muted: #52525b;
+            --border: #e4e4e7;
+            --input-bg: #f4f4f5;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 12px;
+            --radius: 4px; /* Bordi più netti e aggressivi */
+            --logo-filter: invert(0); /* Logo normale */
         }
 
         [data-theme="dark"] {
-            /* TEMA SCURO */
-            --primary: #ffcc00;
-            --primary-hover: #e6b800;
-            --primary-text: #242424;
-            --target-color: #ffcc00; 
+            /* TEMA SCURO - BRUTALISTA */
+            --primary: #ffffff;
+            --primary-hover: #d4d4d8;
+            --primary-text: #000000;
+            --target-color: #a3a3a3; 
             --danger: #ef4444;
             --danger-hover: #f87171;
-            --success: #10b981;
-            --success-hover: #34d399;
-            --bg: #151515; 
-            --card-bg: #242424; 
-            --text: #f8fafc;
+            --success: #22c55e;
+            --success-hover: #4ade80;
+            --bg: #fff; 
+            --card-bg: #18181b; 
+            --text: #fafafa;
             --text-muted: #a1a1aa;
-            --border: #3f3f3f;
-            --input-bg: #1a1a1a;
+            --border: #27272a;
+            --input-bg: #09090b;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --logo-filter: invert(1); /* Inverte il logo nero in bianco */
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
         
@@ -166,28 +167,50 @@
 
         .btn-img-preview { background: var(--input-bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
         .btn-img-preview:hover { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
+
+        .theme-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .theme-icon::after {
+            content: '';
+            position: absolute;
+            top: -2px; right: -2px; bottom: -2px; left: 50%;
+            background: var(--text);
+        }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-container">
+        <div class="nav-container" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 900; font-size: 1.2rem; letter-spacing: -1px;">
+                <img src="icon-192.png" alt="SetFree" style="height: 32px; filter: var(--logo-filter);">
+            </div>
             <div class="nav-links">
                 <button onclick="navigate('home')" id="nav-home" class="active">Home</button>
-                <button onclick="navigate('gestione')" id="nav-gestione">Le Mie Schede</button>
-                <button onclick="creaNuovaScheda()" id="nav-editor">Crea Nuova</button>
+                <button onclick="navigate('gestione')" id="nav-gestione">Schede</button>
                 <button onclick="navigate('storico')" id="nav-storico">Diario</button>
             </div>
             <div class="nav-utils">
-                <button id="fs-toggle" onclick="toggleFullScreen()" title="Schermo Intero">⛶</button>
-                <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema">🌙</button>
+                <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema" style="background: transparent; border: none;">
+                    <span class="theme-icon"></span>
+                </button>
             </div>
         </div>
     </nav>
 
     <main>
         <section id="view-home" class="view active card">
-            <h1>Dashboard Operativa</h1>
+            <div style="text-align: center; margin-bottom: 0rem;">
+                <img src="icon-512.png" alt="SetFree Logo" style="height: 140px; filter: var(--logo-filter); margin-bottom: 0rem;">
+            </div>
+            
             <div id="home-dynamic-content"></div>
             <div id="home-schede-list" style="margin-top: 1.5rem;"></div>
             <div class="data-management">
@@ -367,7 +390,6 @@
         const themeToggle = document.getElementById('theme-toggle');
         const currentTheme = localStorage.getItem('theme') || 'dark'; 
         document.documentElement.setAttribute('data-theme', currentTheme);
-        themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
 
         let activeTimers = {};
         let globalWorkoutTimerInterval = null;
@@ -399,7 +421,6 @@
             const newTheme = isDark ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            themeToggle.innerText = newTheme === 'dark' ? '☀️' : '🌙';
         }
 
         function toggleFullScreen() {
