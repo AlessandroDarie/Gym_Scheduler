@@ -20,16 +20,16 @@
             --primary-hover: #333333;
             --primary-text: #ffffff; 
             --target-color: #666666; 
-            --danger: #dc2626;
+            --danger: #860404;
             --danger-hover: #b91c1c;
-            --success: #16a34a;
+            --success: #15803d;
             --success-hover: #15803d;
             --bg: #242424;
             --card-bg: #ffffff;
             --text: #171717;
             --text-muted: #52525b;
             --border: #e4e4e7;
-            --input-bg: #f4f4f5;
+            --input-bg: #e5e5e5;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 4px; /* Bordi più netti e aggressivi */
             --logo-filter: invert(0); /* Logo normale */
@@ -41,16 +41,16 @@
             --primary-hover: #d4d4d8;
             --primary-text: #000000;
             --target-color: #a3a3a3; 
-            --danger: #ef4444;
+            --danger: #860404;
             --danger-hover: #f87171;
-            --success: #22c55e;
+            --success: #15803d;
             --success-hover: #4ade80;
             --bg: #fff; 
             --card-bg: #18181b; 
             --text: #fafafa;
             --text-muted: #a1a1aa;
             --border: #27272a;
-            --input-bg: #09090b;
+            --input-bg: #000000;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             --logo-filter: invert(1); /* Inverte il logo nero in bianco */
         }
@@ -83,11 +83,11 @@
         .btn:active { transform: translateY(0); box-shadow: none; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { background: var(--danger-hover); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: var(--success-hover); }
+        .btn-success { background: var(--text); color: var(--primary-text); }
+        .btn-success:hover { background: var(--text); color: var(--primary-text); }
         .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; box-shadow: none; }
         .btn-small:hover { transform: translateY(-1px); }
-        .btn-outline { background: transparent; border: 2px dashed var(--border); color: var(--text-muted); box-shadow: none; }
+        .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); box-shadow: none; }
         .btn-outline:hover { background: var(--input-bg); border-color: var(--primary); color: var(--text); transform: translateY(0); }
         
         input, select { padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; width: 100%; margin-bottom: 0.5rem; background-color: var(--input-bg); color: var(--text); font-size: 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
@@ -162,7 +162,7 @@
         .data-management { display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap; justify-content: center; }
 
         .global-timer { background: var(--primary); color: var(--primary-text); font-weight: 800; padding: 0.4rem 1rem; border-radius: 20px; font-size: 1.1rem; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 0.5rem; }
-        .inp-giorno-nome { margin: 0; font-size: 1.1rem; font-weight: bold; background: transparent; border: none; border-bottom: 2px dashed var(--border); border-radius: 0; padding: 0.2rem; flex: 1; color: var(--text); }
+        .inp-giorno-nome { margin: 0; font-size: 1.1rem; font-weight: bold; background: transparent; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 0.2rem; flex: 1; color: var(--text); }
         .inp-giorno-nome:focus { border-color: var(--primary); box-shadow: none; }
 
         .btn-img-preview { background: var(--input-bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
@@ -214,9 +214,18 @@
             <div id="home-dynamic-content"></div>
             <div id="home-schede-list" style="margin-top: 1.5rem;"></div>
             <div class="data-management">
-                <button class="btn btn-outline btn-small" onclick="apriModalCustom()">⚙️ Esercizi Custom</button>
-                <button class="btn btn-outline btn-small" onclick="esportaDati()">📥 Esporta Dati</button>
-                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">📤 Importa Dati</button>
+                <button class="btn btn-outline btn-small" onclick="apriModalCustom()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.44a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.56a2 2 0 0 1-1 1.73l-.15.08a2 2 0 0 0-.73 2.73l.22.44a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.44a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.56a2 2 0 0 1 1-1.73l.15-.08a2 2 0 0 0 .73-2.73l-.22-.44a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    Esercizi Custom
+                </button>
+                <button class="btn btn-outline btn-small" onclick="esportaDati()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Esporta Dati
+                </button>
+                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Importa Dati
+                </button>
                 <input type="file" id="import-file" style="display:none" accept=".json" onchange="importaDati(event)">
             </div>
         </section>
@@ -393,6 +402,7 @@
 
         let activeTimers = {};
         let globalWorkoutTimerInterval = null;
+        let globalWorkoutStartTime = null;
         let audioCtx = null;
 
         function initAudio() {
@@ -445,13 +455,14 @@
         function avviaTimerGlobale(startTime) {
             if(globalWorkoutTimerInterval) clearInterval(globalWorkoutTimerInterval);
             const display = document.getElementById('workout-global-timer');
+            const timerIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
             
             globalWorkoutTimerInterval = setInterval(() => {
                 const diff = Math.floor((Date.now() - startTime) / 1000);
                 const h = Math.floor(diff / 3600);
                 const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
                 const s = (diff % 60).toString().padStart(2, '0');
-                display.innerText = h > 0 ? `⏱️ ${h}:${m}:${s}` : `⏱️ ${m}:${s}`;
+                display.innerHTML = `${timerIcon} <span>${h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`}</span>`;
             }, 1000);
         }
 
@@ -484,7 +495,6 @@
             }
 
             if (secondiTotali <= 0) return;
-
             if (activeTimers[timerId]) clearInterval(activeTimers[timerId].interval);
             
             btn.classList.add('timer-active');
@@ -496,7 +506,9 @@
                 return m > 0 ? `${m}m ${s}s` : `${s}s`;
             };
 
-            btn.innerText = `⏳ ${formatTime(secondiTotali)}`;
+            const timerIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+            
+            btn.innerHTML = `${timerIcon} <span class="timer-text">${formatTime(secondiTotali)}</span>`;
             activeTimers[timerId] = { interval: null, endTime: endTime };
             salvaStatoAllenamento();
 
@@ -509,15 +521,14 @@
                     
                     btn.classList.remove('timer-active');
                     btn.classList.add('timer-done');
-                    btn.innerText = "✅ GO!";
+                    btn.innerHTML = `${timerIcon} <span class="timer-text">GO!</span>`;
                     playBeep();
 
                     const blocco = btn.closest('.active-exercise');
                     if (blocco) {
                         blocco.classList.add('completed');
                         blocco.setAttribute('data-esercizio-done', 'true');
-                        const doneBtn = blocco.querySelector('button[onclick^="segnaEsercizioCompletato"]');
-                        if(doneBtn) doneBtn.innerText = "Rimuovi spunta";
+                        // La spunta viene aggiornata dall'evento in verificaCompletamento, qui triggeriamo solo il progresso
                         aggiornaProgressoAllenamento();
                     }
                     salvaStatoAllenamento();
@@ -525,11 +536,11 @@
                     setTimeout(() => {
                         if (document.body.contains(btn)) {
                             btn.classList.remove('timer-done');
-                            btn.innerText = "⏱️ Timer";
+                            btn.innerHTML = `${timerIcon} <span class="timer-text">Timer</span>`;
                         }
                     }, 5000);
                 } else {
-                    btn.innerText = `⏳ ${formatTime(rimanenti)}`;
+                    btn.innerHTML = `${timerIcon} <span class="timer-text">${formatTime(rimanenti)}</span>`;
                 }
             }, 1000);
 
@@ -623,15 +634,17 @@
             });
 
             const doneBtn = bloccoEsercizio.querySelector('button[onclick^="segnaEsercizioCompletato"]');
+            const checkIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            const xIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
             if (tuttoCompilato) {
                 bloccoEsercizio.classList.add('completed');
                 bloccoEsercizio.setAttribute('data-esercizio-done', 'true');
-                if(doneBtn) doneBtn.innerText = "Rimuovi spunta";
+                if(doneBtn) doneBtn.innerHTML = `${xIcon} <span class="done-text">Rimuovi spunta</span>`;
             } else {
                 bloccoEsercizio.classList.remove('completed');
                 bloccoEsercizio.setAttribute('data-esercizio-done', 'false');
-                if(doneBtn) doneBtn.innerText = "✅ Segna come Completato";
+                if(doneBtn) doneBtn.innerHTML = `${checkIcon} <span class="done-text">Segna come Completato</span>`;
             }
             
             aggiornaProgressoAllenamento();
@@ -640,12 +653,16 @@
         function segnaEsercizioCompletato(btn) {
             const blocco = btn.closest('.active-exercise');
             blocco.classList.toggle('completed');
+            
+            const checkIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            const xIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
             if (blocco.classList.contains('completed')) {
                 blocco.setAttribute('data-esercizio-done', 'true');
-                btn.innerText = "Rimuovi spunta";
+                btn.innerHTML = `${xIcon} <span class="done-text">Rimuovi spunta</span>`;
             } else {
                 blocco.setAttribute('data-esercizio-done', 'false');
-                btn.innerText = "✅ Segna come Completato";
+                btn.innerHTML = `${checkIcon} <span class="done-text">Segna come Completato</span>`;
             }
             
             aggiornaProgressoAllenamento();
@@ -904,7 +921,7 @@
                 `;
             } else if (!statoInCorsoStr) {
                 htmlDynamic += `
-                    <div style="background: var(--input-bg); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px dashed var(--border); margin-bottom: 1.5rem;">
+                    <div style="background: var(--input-bg); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--border); margin-bottom: 1.5rem;">
                         <p style="margin: 0; font-weight: 600; color: var(--text-muted);">Il diario è vuoto.</p>
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Crea una scheda e inizia a tracciare per generare le statistiche.</p>
                     </div>
@@ -1142,12 +1159,13 @@
             schede.forEach(scheda => {
                 const div = document.createElement('div');
                 div.className = 'scheda-item';
+                div.style.display = "block";
                 div.innerHTML = `
-                    <div>
-                        <strong style="font-size:1.1rem; display:block; color:var(--text);">${scheda.nome}</strong>
-                        <span style="font-size:0.85rem; color:var(--text-muted);">${scheda.allenamenti.length} sessioni configurate</span>
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="font-size:1.3rem; display:block;">${scheda.nome}</strong>
+                        <span style="font-size:0.9rem; color:var(--text-muted);">${scheda.allenamenti.length} sessioni</span>
                     </div>
-                    <div class="scheda-actions">
+                    <div class="scheda-actions" style="display:flex; gap:0.5rem;">
                         <button class="btn btn-outline btn-small" onclick="mostraDettaglio('${scheda.id}')">Apri</button>
                         <button class="btn btn-outline btn-small" onclick="modificaScheda('${scheda.id}')">Modifica</button>
                         <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="eliminaScheda('${scheda.id}')">Elimina</button>
@@ -1166,25 +1184,23 @@
 
             scheda.allenamenti.forEach(all => {
                 const nomeGiorno = all.nomeGiorno || `Sessione ${all.giorno}`;
-                html += `<div class="workout-card" style="border-left-color: var(--primary);">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <h3 style="margin:0;">${nomeGiorno}</h3>
-                                <button class="btn btn-primary btn-small" onclick="iniziaAllenamento('${scheda.id}', ${all.giorno})">▶ Avvia Workout</button>
+                html += `<div class="workout-card" style="border: 1.5px solid var(--text); background: transparent; border-left: 6px solid var(--primary);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                                <h3 style="margin:0; font-size: 1.2rem;">${nomeGiorno}</h3>
+                                <button class="btn btn-success btn-small" onclick="iniziaAllenamento('${scheda.id}', ${all.giorno})">Avvia</button>
                             </div>
-                            <table class="detail-table">
-                                <thead><tr><th>Esercizio</th><th>Set</th><th>Rip</th><th>Rec</th></tr></thead>
-                                <tbody>`;
+                            <div style="display: grid; gap: 0.5rem;">`;
                 
                 all.esercizi.forEach(es => {
-                    let noteHtml = es.note ? `<br><span style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">Nota: ${es.note}</span>` : '';
-                    html += `<tr>
-                                <td><strong>${es.esercizio}</strong><br><span class="badge">${es.categoria.replace(/_/g, ' ')}</span>${noteHtml}</td>
-                                <td>${es.serie || '-'}</td>
-                                <td>${es.ripetizioni || '-'}</td>
-                                <td>${es.recupero || '-'}</td>
-                             </tr>`;
+                    html += `<div style="border-bottom: 1px solid var(--border); padding: 0.5rem 0;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <strong style="font-size: 0.95rem;">${es.esercizio}</strong>
+                                    <span style="font-size: 0.8rem; font-weight:700;">${es.serie}x${es.ripetizioni} | ${es.recupero}</span>
+                                </div>
+                                <span class="badge" style="background:none; border: 1px solid var(--border);">${es.categoria.replace(/_/g, ' ')}</span>
+                             </div>`;
                 });
-                html += `</tbody></table></div>`;
+                html += `</div></div>`;
             });
 
             container.innerHTML = html;
@@ -1252,7 +1268,10 @@
                 let secondiRecupero = parseTempoRecupero(es.recupero);
                 
                 if(secondiRecupero > 0 && !isCardio) {
-                    timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px;" onclick="avviaTimer(this, '${es.recupero.replace(/'/g, "\\'")}', 'timer_${index}')">⏱️ Timer</button>`;
+                    timerBtn = `<button class="btn btn-outline btn-small timer-btn" style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; border-width: 1px; display: inline-flex; align-items: center; gap: 4px;" onclick="avviaTimer(this, '${es.recupero.replace(/'/g, "\\'")}', 'timer_${index}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span class="timer-text">Timer</span>
+                    </button>`;
                 }
 
                 let alertNote = es.note ? `<div style="background: rgba(255, 204, 0, 0.1); border-left: 3px solid var(--primary); padding: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text);"><strong>Nota:</strong> ${es.note}</div>` : '';
@@ -1261,7 +1280,9 @@
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
                                 <h3 class="exec-es-nome" style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                                     ${es.esercizio}
-                                    <button class="btn-img-preview" onclick="apriModalImmagine('${es.esercizio.replace(/'/g, "\\'")}')" title="Vedi Immagine">📸</button>
+                                    <button class="btn-img-preview" onclick="apriModalImmagine('${es.esercizio.replace(/'/g, "\\'")}')" title="Vedi Immagine">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    </button>
                                 </h3>
                                 ${historyBadge}
                             </div>
@@ -1291,7 +1312,10 @@
                 }
 
                 html += `<div style="padding: 1rem 0 0 0; text-align: left;">
-                            <button class="btn btn-outline btn-small" onclick="segnaEsercizioCompletato(this)">✅ Segna come Completato</button>
+                            <button class="btn btn-outline btn-small" onclick="segnaEsercizioCompletato(this)" style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span class="done-text">Segna come Completato</span>
+                            </button>
                          </div></div>`;
             });
 
@@ -1302,8 +1326,8 @@
         function iniziaAllenamento(schedaId, giornoId) {
             if(costruisciVistaEsecuzione(schedaId, giornoId)) {
                 localStorage.removeItem('allenamentoInCorso');
-                const startTime = Date.now();
-                avviaTimerGlobale(startTime);
+                globalWorkoutStartTime = Date.now();
+                avviaTimerGlobale(globalWorkoutStartTime);
                 navigate('esegui');
                 aggiornaProgressoAllenamento();
                 salvaStatoAllenamento();
@@ -1316,8 +1340,8 @@
             const stato = JSON.parse(statoStr);
             
             if(costruisciVistaEsecuzione(stato.schedaId, stato.giornoId)) {
-                if(stato.startTime) avviaTimerGlobale(stato.startTime);
-
+                globalWorkoutStartTime = stato.startTime || Date.now();
+                avviaTimerGlobale(globalWorkoutStartTime);
                 navigate('esegui');
                 
                 setTimeout(() => {
@@ -1328,7 +1352,8 @@
                                 blocchi[index].classList.add('completed');
                                 blocchi[index].setAttribute('data-esercizio-done', 'true');
                                 const btn = blocchi[index].querySelector('button[onclick^="segnaEsercizioCompletato"]');
-                                if(btn) btn.innerText = "Rimuovi spunta";
+                                const xIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+                                if(btn) btn.innerHTML = `${xIcon} <span class="done-text">Rimuovi spunta</span>`;
                             }
                             
                             const inputs = blocchi[index].querySelectorAll('input');
@@ -1360,6 +1385,13 @@
             const nomeGiorno = allenamentoData && allenamentoData.nomeGiorno ? allenamentoData.nomeGiorno : `Sessione ${giorno}`;
 
             let durataTotaleFormat = "00:00";
+            if(globalWorkoutStartTime) {
+                const diff = Math.floor((Date.now() - globalWorkoutStartTime) / 1000);
+                const h = Math.floor(diff / 3600);
+                const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                durataTotaleFormat = h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+            }
             const statoStr = localStorage.getItem('allenamentoInCorso');
             if(statoStr) {
                 const stato = JSON.parse(statoStr);
@@ -1437,6 +1469,30 @@
             navigate('storico');
         }
 
+        function salvaStatoAllenamento() {
+            if(!document.getElementById('view-esegui').classList.contains('active')) return;
+            const schedaId = document.getElementById('esegui-scheda-id').value;
+            const giornoId = document.getElementById('esegui-giorno').value;
+            if(!schedaId || !giornoId) return;
+
+            const stato = {
+                schedaId: schedaId,
+                giornoId: parseInt(giornoId),
+                timestamp: Date.now(),
+                startTime: globalWorkoutStartTime || Date.now(),
+                blocchi: []
+            };
+
+            document.querySelectorAll('#esegui-content .active-exercise').forEach((blocco, index) => {
+                const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
+                const inputs = [];
+                blocco.querySelectorAll('input').forEach(inp => inputs.push({ value: inp.value }));
+                let timerState = activeTimers['timer_' + index] ? activeTimers['timer_' + index].endTime : null;
+                stato.blocchi.push({ isDone, inputs, timerEndTime: timerState });
+            });
+            localStorage.setItem('allenamentoInCorso', JSON.stringify(stato));
+        }
+
         async function annullaAllenamento() {
             const confermato = await customConfirm("Vuoi annullare la sessione? Tutti i progressi non terminati andranno persi.", "Annulla Sessione");
             if(confermato) {
@@ -1456,34 +1512,39 @@
             }
 
             diario.forEach((record, index) => {
-                let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:var(--input-bg); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid var(--border);">⏱️ Durata: ${record.durata}</span>` : '';
+                const clockSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+                const trashSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
+                // Stile brutalista per il badge della durata (trasparente con bordo netto)
+                let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:transparent; padding:0.2rem 0.5rem; border-radius:4px; border:1.5px solid var(--text); color:var(--text); font-weight:700; display:inline-flex; align-items:center;">${clockSvg} Durata: ${record.durata}</span>` : '';
                 const nomeGiorno = record.nomeGiorno || `Sessione ${record.giorno}`;
 
                 let html = `<div class="workout-card" style="border-left-color: var(--text-muted); background: var(--card-bg);">
-                                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
                                     <div>
-                                        <h3 style="margin:0; font-size:1.1rem;">${record.schedaNome}</h3>
-                                        <div style="margin-top:0.2rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                                            <span style="font-size:0.8rem; color:var(--text-muted);">${nomeGiorno} | ${record.dataString}</span>
+                                        <h3 style="margin:0; font-size:1.2rem; letter-spacing:-0.5px;">${record.schedaNome}</h3>
+                                        <div style="margin-top:0.4rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">${nomeGiorno} | ${record.dataString}</span>
                                             ${durataBadge}
                                         </div>
                                     </div>
-                                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger);" onclick="eliminaRecord(${index})">X</button>
+                                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger); padding:0.4rem;" onclick="eliminaRecord(${index})" title="Elimina Allenamento">${trashSvg}</button>
                                 </div>
-                                <div style="display:grid; gap: 0.5rem;">`;
+                                <div style="display:grid; gap: 0.75rem;">`;
                 
                 record.eserciziFatti.forEach(es => {
                     const isCardio = es.categoria === 'riscaldamento' || es.categoria === 'post_allenamento';
-                    let intentLog = (!isCardio && es.targetSerie && es.targetRip) ? ` <span style="color:var(--text-muted); font-size:0.75rem;">[Obiettivo: ${es.targetSerie}x${es.targetRip}]</span>` : '';
+                    let intentLog = (!isCardio && es.targetSerie && es.targetRip) ? ` <span style="color:var(--text-muted); font-size:0.8rem; font-weight:normal;">[Obiettivo: ${es.targetSerie}x${es.targetRip}]</span>` : '';
                     
+                    // Stile brutalista per i blocchetti dei set (niente sfondi, solo bordi solidi e testo in grassetto)
                     let logSerie = es.serie.map(s => {
-                        if (s.min !== undefined) return `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:0.85rem; white-space:nowrap;">⏱️ ${s.min}</span>`;
-                        return `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:0.85rem; white-space:nowrap;">${s.kg}kg x ${s.rip}</span>`;
+                        if (s.min !== undefined) return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center;">${clockSvg} ${s.min}</span>`;
+                        return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:700; white-space:nowrap;">${s.kg}kg <span style="opacity:0.5; font-size:0.75rem; margin:0 2px;">x</span> ${s.rip}</span>`;
                     }).join(' ');
                     
-                    html += `<div style="display:flex; flex-direction:column; gap:0.25rem;">
-                                <strong style="font-size:0.9rem;">${es.nome}${intentLog}</strong>
-                                <div style="display:flex; gap:0.25rem; flex-wrap:wrap;">${logSerie}</div>
+                    html += `<div style="display:flex; flex-direction:column; gap:0.4rem;">
+                                <strong style="font-size:0.95rem;">${es.nome}${intentLog}</strong>
+                                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">${logSerie}</div>
                              </div>`;
                 });
 
