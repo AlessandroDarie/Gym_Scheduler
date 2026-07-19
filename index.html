@@ -1162,7 +1162,7 @@
                     container.innerHTML = '';
 
                     if(schede.length === 0) {
-                        container.innerHTML = '<p>Nessuna scheda presente.</p>';
+                        container.innerHTML = '<p>Nessuna scheda presente.</p> <p>Torna alla home per creare la tua prima scheda.</p>';
                         return;
                     }
 
@@ -1629,8 +1629,8 @@
             if (diario.length === 0) {
                 container.innerHTML = `
                     <div style="background: var(--input-bg); padding: 1.5rem; border: 1.5px solid var(--text); text-align: center;">
-                        <p style="margin: 0; font-weight: 600;">Nessun dato. Niente scuse.</p>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Allenati, registra e torna qui.</p>
+                        <p style="margin: 0; font-weight: 600;">Statistiche delle sessioni completate.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Nessun allenamento registrato nel diario.</p>
                     </div>`;
                 return;
             }
