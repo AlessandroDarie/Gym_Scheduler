@@ -1611,56 +1611,105 @@ function mostraDettaglio(id) {
             container.innerHTML = '';
 
             if(diario.length === 0) {
-                container.innerHTML = '<p>Nessun allenamento registrato nel diario.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted);">Nessun allenamento registrato nel diario.</p>';
                 return;
             }
+
+            let html = '';
 
             diario.forEach((record, index) => {
                 const clockSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
                 const trashSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
                 // Stile brutalista per il badge della durata (trasparente con bordo netto)
-                let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:transparent; padding:0.2rem 0.5rem; border-radius:4px; border:1.5px solid var(--text); color:var(--text); font-weight:700; display:inline-flex; align-items:center;">${clockSvg} Durata: ${record.durata}</span>` : '';
-                const nomeGiorno = record.nomeGiorno || `Sessione ${record.giorno}`;
-
-                let html = `<div class="workout-card" style="border-left-color: var(--text-muted); background: var(--card-bg);">
-                                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
-                                    <div>
-                                        <h3 style="margin:0; font-size:1.2rem; letter-spacing:-0.5px;">${record.schedaNome}</h3>
-                                        <div style="margin-top:0.4rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                                            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">${nomeGiorno} | ${record.dataString}</span>
-                                            ${durataBadge}
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger); padding:0.4rem;" onclick="eliminaRecord(${index})" title="Elimina Allenamento">${trashSvg}</button>
-                                </div>
-                                <div style="display:grid; gap: 0.75rem;">`;
+                let durataBadge = record.durata ? `<span style="font-size:0.8rem; background:transparent; padding:0.2rem 0.5rem; border-radius:0; border:1.5px solid var(--text); color:var(--text); font-weight:800; display:inline-flex; align-items:center;">${clockSvg} ${record.durata}</span>` : '';
                 
-                record.eserciziFatti.forEach(es => {
-                    const isCardio = es.categoria === 'riscaldamento' || es.categoria === 'post_allenamento';
-                    let intentLog = (!isCardio && es.targetSerie && es.targetRip) ? ` <span style="color:var(--text-muted); font-size:0.8rem; font-weight:normal;">[Obiettivo: ${es.targetSerie}x${es.targetRip}]</span>` : '';
-                    
-                    // Stile brutalista per i blocchetti dei set (niente sfondi, solo bordi solidi e testo in grassetto)
-                    let logSerie = es.serie.map(s => {
-                        if (s.min !== undefined) return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center;">${clockSvg} ${s.min}</span>`;
-                        return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:700; white-space:nowrap;">${s.kg}kg <span style="opacity:0.5; font-size:0.75rem; margin:0 2px;">x</span> ${s.rip}</span>`;
-                    }).join(' ');
-                    
-                    html += `<div style="display:flex; flex-direction:column; gap:0.4rem;">
-                                <strong style="font-size:0.95rem;">${es.nome}
-                                    <button class="btn-img-preview" style="width:24px; height:24px; padding:0; margin-left:6px; vertical-align:middle;" onclick="apriModalImmagine('${es.nome.replace(/'/g, "\\'")}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
-                                    ${intentLog}
-                                </strong>
-                                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">${logSerie}</div>
-                             </div>`;
-                });
+                const nomeGiorno = record.nomeGiorno || `Sessione ${record.giorno}`;
+                const numEsercizi = record.eserciziFatti ? record.eserciziFatti.length : 0;
+                const bodyId = `storico-body-${index}`;
 
-                html += `</div></div>`;
-                container.innerHTML += html;
+                html += `
+                    <div style="border: 1.5px solid var(--text); border-left: 8px solid var(--text-muted); background: var(--card-bg); margin-bottom: 1rem; border-radius: 0;">
+                        
+                        <!-- HEADER COMPATTO (Clickabile) -->
+                        <div onclick="const b = document.getElementById('${bodyId}'); b.style.display = b.style.display === 'none' ? 'block' : 'none';" 
+                             style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; user-select: none;">
+                            
+                            <div>
+                                <h3 style="margin:0; font-size:1.2rem; letter-spacing:-0.5px; text-transform: uppercase;">${record.schedaNome}</h3>
+                                <div style="margin-top:0.4rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                    <span style="font-size:0.85rem; color:var(--text-muted); font-weight:800;">${nomeGiorno} | ${record.dataString}</span>
+                                    ${durataBadge}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; margin-top: 0.5rem;">
+                                    ${numEsercizi} ESERCIZI <span style="font-size: 0.7rem; font-weight: 400; opacity: 0.7;">(Clicca per espandere)</span>
+                                </div>
+                            </div>
+
+                            <!-- BOTTONE ELIMINA (Isolato dal click) -->
+                            <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger); padding:0.4rem; border-radius:4px;" 
+                                    onclick="event.stopPropagation(); eliminaRecord(${index})" title="Elimina Allenamento">${trashSvg}</button>
+                        </div>
+
+                        <!-- DETTAGLIO ESERCIZI (Nascosto di default) -->
+                        <div id="${bodyId}" style="display: none; border-top: 1.5px solid var(--text); padding: 1.25rem;">
+                            <div style="display:grid; gap: 1.25rem;">`;
+                
+                if (record.eserciziFatti) {
+                    record.eserciziFatti.forEach(es => {
+                        const isCardio = es.categoria === 'riscaldamento' || es.categoria === 'post_allenamento';
+                        
+                        let intentLog = (!isCardio && es.targetSerie && es.targetRip) ? `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-top:0.2rem;">Obiettivo: ${es.targetSerie}x${es.targetRip}</div>` : '';
+                        
+                        let logSerie = es.serie.map(s => {
+                            if (s.min !== undefined) return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:0; font-size:0.85rem; font-weight:800; white-space:nowrap; display:inline-flex; align-items:center;">${clockSvg} ${s.min}</span>`;
+                            return `<span style="background:transparent; border: 1.5px solid var(--text); color:var(--text); padding:4px 8px; border-radius:0; font-size:0.85rem; font-weight:800; white-space:nowrap;">${s.kg}kg <span style="opacity:0.5; font-size:0.75rem; margin:0 2px;">x</span> ${s.rip}</span>`;
+                        }).join(' ');
+                        
+                        html += `<div style="display:flex; flex-direction:column; gap:0.4rem; margin-bottom: 1.2rem;">
+                                    <div>
+                                        <strong style="font-size:1rem; text-transform: lowercase; display:inline-flex; align-items:center; gap:0.4rem;">
+                                            ${es.nome}
+                                            <button class="btn-img-preview" style="width:24px; height:24px; padding:0; background:transparent; border:none; cursor:pointer; color:var(--text-muted);" onclick="apriModalImmagine('${es.nome.replace(/'/g, "\\'")}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
+                                        </strong>
+                                        ${intentLog}
+                                    </div>
+                                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">${logSerie}</div>
+                                 </div>`;
+                    });
+                }
+
+                html += `       </div>
+                            </div>
+                    </div>`;
             });
+
+            container.innerHTML = html;
         }
 
-       // Funzione helper per leggere le date salvate come "GG/MM/AAAA - HH:mm"
+        function vaiADettaglioStorico(index) {
+            navigate('storico'); // Cambia vista
+            
+            // Un micro-timeout assicura che il DOM del diario sia stato generato prima di interagire
+            setTimeout(() => {
+                const bodyEl = document.getElementById(`storico-body-${index}`);
+                if (bodyEl) {
+                    bodyEl.style.display = 'block'; // Espande l'accordion
+                    const parentCard = bodyEl.closest('.workout-card');
+                    if (parentCard) {
+                        // Centra la sessione sullo schermo
+                        parentCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        // Micro-feedback visivo brutalista (fa lampeggiare il bordo sinistro)
+                        const originalBorder = parentCard.style.borderLeftColor;
+                        parentCard.style.borderLeftColor = 'var(--text)';
+                        setTimeout(() => parentCard.style.borderLeftColor = originalBorder, 600);
+                    }
+                }
+            }, 50);
+        }
+       
+        // Funzione helper per leggere le date salvate come "GG/MM/AAAA - HH:mm"
         function parseItalianDate(dateString) {
             const parts = dateString.split(' - ')[0].split('/');
             return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -1687,7 +1736,9 @@ function mostraDettaglio(id) {
             let personalRecords = {};
 
             const dateAllenamentoSet = new Set();
+            const dateIndexMap = new Map(); // Mappa il timestamp esatto all'indice del diario
 
+            // --- VARIABILI PER IL TEMPO ---
             let timeLast30 = [];
             let totalMinsStorico = 0;
             const totalSessionsStorico = diario.length;
@@ -1719,15 +1770,20 @@ function mostraDettaglio(id) {
             };
 
             // Analisi profonda del diario
-            diario.forEach(record => {
+            diario.forEach((record, index) => {
                 const recDate = parseItalianDate(record.dataString);
                 recDate.setHours(0,0,0,0);
+                const t = recDate.getTime();
 
-                dateAllenamentoSet.add(recDate.getTime());
+                dateAllenamentoSet.add(t);
+                
+                // Salva il riferimento al diario. Punta all'allenamento più recente della giornata.
+                if (!dateIndexMap.has(t)) dateIndexMap.set(t, index);
 
                 const diffTime = Math.abs(now - recDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+                // --- CALCOLO TEMPI ---
                 const sessionMins = parseDurata(record.durata);
                 totalMinsStorico += sessionMins;
                 if (diffDays <= 30 && sessionMins > 0) {
@@ -1753,12 +1809,11 @@ function mostraDettaglio(id) {
                             const rip = parseInt(s.rip) || 0;
                             volEsercizio += (kg * rip);
                             
-                            // Logica aggiornata: traccia max peso e relative ripetizioni
+                            // Traccia max peso e relative ripetizioni
                             if (kg > maxKgRecord) {
                                 maxKgRecord = kg;
                                 bestRipAtMaxKg = rip;
                             } else if (kg === maxKgRecord && rip > bestRipAtMaxKg) {
-                                // A parità di carico, vince chi ha fatto più ripetizioni
                                 bestRipAtMaxKg = rip;
                             }
                         }
@@ -1798,12 +1853,16 @@ function mostraDettaglio(id) {
             // Blocco 1: Costanza (Testo neutrale + Grafico Brutalista a Blocchi)
             const isSlacking = sessionsLast30 < 8; 
             
-            // Costruzione del grafico degli ultimi 30 giorni (Leggibile e Brutalista)
+            // Costruzione del grafico degli ultimi 30 giorni (Leggibile, Brutalista e Interattivo)
             let graficoHtml = '<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 1.25rem;">';
             for (let i = 29; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(d.getDate() - i);
-                const isTrained = dateAllenamentoSet.has(d.getTime());
+                d.setHours(0,0,0,0);
+                const t = d.getTime();
+                
+                const isTrained = dateAllenamentoSet.has(t);
+                const targetIndex = dateIndexMap.get(t);
                 
                 // Inversione spietata: il testo scava lo sfondo usando card-bg
                 const bg = isTrained ? 'var(--text)' : 'transparent';
@@ -1811,10 +1870,14 @@ function mostraDettaglio(id) {
                 const textColor = isTrained ? 'var(--card-bg)' : 'var(--text-muted)';
                 const dayNum = d.getDate();
                 
-                graficoHtml += `
-                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: ${bg}; border: 1.5px solid ${border}; color: ${textColor}; font-size: 0.8rem; font-weight: 900; border-radius: 0;" title="${d.toLocaleDateString('it-IT')}">
-                        ${dayNum}
-                    </div>`;
+                let actionAttr = '';
+                if (isTrained && targetIndex !== undefined) {
+                    actionAttr = `onclick="vaiADettaglioStorico(${targetIndex})" style="cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: ${bg}; border: 1.5px solid ${border}; color: ${textColor}; font-size: 0.8rem; font-weight: 900; border-radius: 0;" title="Esamina sessione del ${d.toLocaleDateString('it-IT')}"`;
+                } else {
+                    actionAttr = `style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: ${bg}; border: 1.5px solid ${border}; color: ${textColor}; font-size: 0.8rem; font-weight: 900; border-radius: 0;" title="${d.toLocaleDateString('it-IT')}"`;
+                }
+                
+                graficoHtml += `<div ${actionAttr}>${dayNum}</div>`;
             }
             
             // Calcolo la data di 30 giorni fa per l'etichetta
@@ -1965,7 +2028,6 @@ function mostraDettaglio(id) {
             html += `</div>`;
             container.innerHTML = html;
         }
-
         async function eliminaRecord(index) {
             const confermato = await customConfirm("Cancellare questa registrazione dal diario?", "Conferma Eliminazione");
             if(confermato) {
