@@ -577,6 +577,9 @@
 
         function avviaTimer(btn, tempoStr, timerId, forceEndTime = null) {
             initAudio();
+            if (impostazioni.vibrazione && navigator.vibrate) {
+                navigator.vibrate(1); 
+            }
             let secondiTotali = 0;
             let endTime = forceEndTime;
 
@@ -1464,7 +1467,7 @@ function mostraDettaglio(id) {
                     </button>`;
                 }
 
-                let alertNote = `<input type="text" class="exec-note" placeholder="Note per la prossima volta (es. alzare kg, esecuzione pulita...)" value="${es.note ? String(es.note).replace(/"/g, '&quot;') : ''}" style="margin-bottom: 1rem; border: 1.5px solid var(--text); border-left: 4px solid var(--text); background: transparent; font-size: 0.85rem; padding: 0.6rem; border-radius: 0; width: 100%; color: var(--text);">`;
+                let alertNote = `<input type="text" class="exec-note" placeholder="Nota:" value="${es.note ? String(es.note).replace(/"/g, '&quot;') : ''}" style="margin-bottom: 1rem; border: 1.5px solid var(--text); border-left: 4px solid var(--text); background: transparent; font-size: 0.85rem; padding: 0.6rem; border-radius: 0; width: 100%; color: var(--text);">`;
 
                 html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero ? String(es.recupero).replace(/"/g, '&quot;') : ''}">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
