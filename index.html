@@ -221,20 +221,12 @@
             
             <div id="home-dynamic-content"></div>
             <div id="home-schede-list" style="margin-top: 1.5rem;"></div>
-            <div class="data-management">
-                <button class="btn btn-outline btn-small" onclick="apriModalCustom()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.44a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.56a2 2 0 0 1-1 1.73l-.15.08a2 2 0 0 0-.73 2.73l.22.44a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.44a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.56a2 2 0 0 1 1-1.73l.15-.08a2 2 0 0 0 .73-2.73l-.22-.44a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    Esercizi Custom
-                </button>
-                <button class="btn btn-outline btn-small" onclick="esportaDati()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Esporta Dati
-                </button>
-                <button class="btn btn-outline btn-small" onclick="document.getElementById('import-file').click()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    Importa Dati
-                </button>
-                <input type="file" id="import-file" style="display:none" accept=".json" onchange="importaDati(event)">
+            
+            <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                    SetFree<br>
+                    Copyright &copy; 2026 Alessandro Darie
+                </p>
             </div>
         </section>
 
@@ -370,7 +362,7 @@
                 <button class="btn btn-outline btn-small" id="btn-toggle-theme" onclick="toggleTheme()" style="min-width: 70px; font-weight: 900;">ON</button>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
                 <div>
                     <strong style="font-size: 1.1rem; display: block;">Feedback Audio</strong>
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Avviso acustico recupero</span>
@@ -378,11 +370,33 @@
                 <button class="btn btn-outline btn-small" id="btn-toggle-audio" onclick="toggleImpostazione('audio')" style="min-width: 70px; font-weight: 900;">ON</button>
             </div>
 
+            <!-- SEZIONE GESTIONE DATI -->
+            <div style="margin-bottom: 1.5rem;">
+                <strong style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.75rem;">Database & Archiviazione</strong>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;" onclick="chiudiModalImpostazioni(null, true); apriModalCustom();">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.44a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.56a2 2 0 0 1-1 1.73l-.15.08a2 2 0 0 0-.73 2.73l.22.44a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.44a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.56a2 2 0 0 1 1-1.73l.15-.08a2 2 0 0 0 .73-2.73l-.22-.44a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        Aggiungi Esercizi
+                    </button>
+                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;" onclick="chiudiModalImpostazioni(null, true); esportaDati();">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Esporta Dati
+                    </button>
+                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;" onclick="chiudiModalImpostazioni(null, true); document.getElementById('import-file').click();">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Importa Dati
+                    </button>
+                </div>
+            </div>
+
             <div class="modal-actions">
-                <button class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="chiudiModalImpostazioni(null, true)">Conferma</button>
+                <button class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="chiudiModalImpostazioni(null, true)">Chiudi</button>
             </div>
         </div>
     </div>
+
+    <!-- Input invisibile globale per l'importazione dati -->
+    <input type="file" id="import-file" style="display:none" accept=".json" onchange="importaDati(event)">
 
     <script>
         // --- MOTORE MODALI ---
