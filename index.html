@@ -30,7 +30,7 @@
             --text-muted: #52525b;
             --border: #e4e4e7;
             --input-bg: #e5e5e5;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow: 0 7.5px 15px -3px rgba(255, 255, 255, 0.5);
             --radius: 4px; /* Bordi più netti e aggressivi */
             --logo-filter: invert(0); /* Logo normale */
         }
@@ -59,10 +59,10 @@
         
         nav { background: var(--card-bg); padding: 1rem; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .nav-container { max-width: 800px; margin: 0 auto; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center; }
-        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .nav-links { display: flex; gap: 0.25rem; flex-wrap: nowrap; justify-content: center; }
         .nav-utils { display: flex; gap: 0.5rem; justify-content: center; align-items: center; }
         
-        nav button { background: none; border: none; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 0.6rem 1rem; border-radius: 8px; transition: all 0.2s; }
+        nav button { background: none; border: none; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 0.5rem 0.6rem; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
         nav button:hover { color: var(--text); background: var(--input-bg); }
         nav button.active { background: var(--primary); color: var(--primary-text); }
         
@@ -196,6 +196,7 @@
                 <button onclick="navigate('home')" id="nav-home" class="active">Home</button>
                 <button onclick="navigate('gestione')" id="nav-gestione">Schede</button>
                 <button onclick="navigate('storico')" id="nav-storico">Diario</button>
+                <button onclick="navigate('statistiche')" id="nav-statistiche">Stats</button>
             </div>
             <div class="nav-utils">
                 <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema" style="background: transparent; border: none;">
@@ -288,6 +289,12 @@
             <h2>Diario Allenamenti</h2>
             <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Storico delle sessioni completate.</p>
             <div id="lista-storico"></div>
+        </section>
+
+        <section id="view-statistiche" class="view card">
+            <h2>Statistiche Volume</h2>
+            <div id="stats-content">
+            </div>
         </section>
     </main>
 
@@ -970,6 +977,7 @@
             if(viewName === 'home') renderHome();
             if(viewName === 'gestione') renderListaSchede();
             if(viewName === 'storico') renderStorico();
+            if(viewName === 'statistiche') renderStatistiche();
             window.scrollTo(0, 0);
         }
 
@@ -1047,7 +1055,10 @@
                 </div>
                 
                 <div class="input-group group-es">
-                    <label>Esercizio</label>
+                    <label style="display:flex; justify-content:space-between; align-items:center;">
+                        Esercizio
+                        <span style="cursor:pointer; color:var(--text); text-decoration:underline; font-size:0.75rem;" onclick="const val = this.closest('.group-es').querySelector('.sel-es').value; if(val) apriModalImmagine(val); else customAlert('Seleziona un esercizio dal menu a tendina per vederne l\\'immagine.');">Vedi Immagine</span>
+                    </label>
                     <select class="sel-es"><option value="">Seleziona prima il muscolo...</option></select>
                 </div>
                 
@@ -1147,35 +1158,64 @@
         }
 
         function renderListaSchede() {
-            const container = document.getElementById('lista-schede');
-            container.innerHTML = '';
+                    const container = document.getElementById('lista-schede');
+                    container.innerHTML = '';
 
-            if(schede.length === 0) {
-                container.innerHTML = '<p>Nessuna scheda presente.</p>';
-                return;
-            }
+                    if(schede.length === 0) {
+                        container.innerHTML = '<p>Nessuna scheda presente.</p>';
+                        return;
+                    }
 
-            schede.forEach(scheda => {
-                const div = document.createElement('div');
-                div.style.border = "1.5px solid var(--text)";
-                div.style.padding = "1.5rem";
-                div.style.marginBottom = "1rem";
-                div.style.borderRadius = "0";
-                
-                div.innerHTML = `
-                    <div style="margin-bottom: 1rem;">
-                        <strong style="font-size:1.3rem; display:block;">${scheda.nome}</strong>
-                        <span style="font-size:0.9rem; color:var(--text-muted);">${scheda.allenamenti.length} sessioni</span>
-                    </div>
-                    <div style="display:flex; gap:0.5rem;">
-                        <button class="btn btn-outline btn-small" onclick="mostraDettaglio('${scheda.id}')">Apri</button>
-                        <button class="btn btn-outline btn-small" onclick="modificaScheda('${scheda.id}')">Modifica</button>
-                        <button class="btn btn-danger btn-small" onclick="eliminaScheda('${scheda.id}')">Elimina</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
+                    // Ordina mettendo quella attiva in cima
+                    const schedeOrdinate = [...schede].sort((a, b) => (b.isAttiva === true) - (a.isAttiva === true));
+
+                    schedeOrdinate.forEach(scheda => {
+                        const div = document.createElement('div');
+                        const isAttiva = scheda.isAttiva;
+                        
+                        // Stile della card: bordo netto se attiva, normale se inattiva
+                        div.style.border = isAttiva ? "3px solid var(--text)" : "1.5px solid var(--text)";
+                        div.style.borderLeft = isAttiva ? "8px solid var(--primary)" : "1.5px solid var(--text)";
+                        div.style.padding = "1.5rem";
+                        div.style.marginBottom = "1rem";
+                        div.style.borderRadius = "0";
+                        div.style.background = isAttiva ? "var(--input-bg)" : "transparent";
+                        
+                        // FIX: Colori del Badge corretti con le variabili ad alto contrasto
+                        const badgeAttiva = isAttiva ? `<span style="font-size: 0.75rem; font-weight: 900; background: var(--primary); color: var(--primary-text); padding: 0.25rem 0.6rem; text-transform: uppercase; margin-bottom: 0.75rem; display: inline-block; letter-spacing: 0.5px;">Programma Attivo</span>` : '';
+                        
+                        // FIX: Logica e UI dei bottoni asimmetrica
+                        let btnAttivaHtml = '';
+                        if (isAttiva) {
+                            // Se attiva: tasto debole per deselezionare, ma con bordo INVALICABILE e sempre visibile
+                            btnAttivaHtml = `<button class="btn btn-outline btn-small" style="color: var(--text-muted); border: 1.5px solid var(--text-muted); background: transparent;" onclick="impostaSchedaAttiva('${scheda.id}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                Deseleziona
+                            </button>`;
+                        } else {
+                            // Se inattiva: tasto forte per attivarla
+                            btnAttivaHtml = `<button class="btn btn-outline btn-small" style="border-color: var(--text); font-weight: 700;" onclick="impostaSchedaAttiva('${scheda.id}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Imposta Attiva
+                            </button>`;
+                        }
+
+                        div.innerHTML = `
+                            ${badgeAttiva}
+                            <div style="margin-bottom: 1rem;">
+                                <strong style="font-size:1.3rem; display:block;">${scheda.nome}</strong>
+                                <span style="font-size:0.9rem; color:var(--text-muted);">${scheda.allenamenti.length} sessioni</span>
+                            </div>
+                            <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-outline btn-small" onclick="mostraDettaglio('${scheda.id}')">Apri</button>
+                                <button class="btn btn-outline btn-small" onclick="modificaScheda('${scheda.id}')">Modifica</button>
+                                ${btnAttivaHtml}
+                                <button class="btn btn-outline btn-small" style="border-color:var(--danger); color:var(--danger); margin-left: auto;" onclick="eliminaScheda('${scheda.id}')">Elimina</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
 
         function mostraDettaglio(id) {
             const scheda = schede.find(s => String(s.id) === String(id));
@@ -1196,7 +1236,9 @@
                 all.esercizi.forEach(es => {
                     html += `<div style="border-bottom: 1px solid var(--border); padding: 0.5rem 0;">
                                 <div style="display:flex; justify-content:space-between;">
-                                    <strong style="font-size: 0.95rem;">${es.esercizio}</strong>
+                                    <strong style="font-size: 0.95rem;">${es.esercizio}
+                                        <button class="btn-img-preview" style="width:24px; height:24px; padding:0; margin-left:6px; vertical-align:middle;" onclick="apriModalImmagine('${es.esercizio.replace(/'/g, "\\'")}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
+                                    </strong>
                                     <span style="font-size: 0.8rem; font-weight:700;">${es.serie}x${es.ripetizioni} | ${es.recupero}</span>
                                 </div>
                                 <span class="badge" style="background:none; border: 1px solid var(--border);">${es.categoria.replace(/_/g, ' ')}</span>
@@ -1229,6 +1271,18 @@
                 salvaDati();
                 renderListaSchede();
             }
+        }
+
+        function impostaSchedaAttiva(id) {
+            // Se clicco su quella già attiva, la disattivo. Altrimenti attivo la nuova.
+            const schedaTarget = schede.find(s => String(s.id) === String(id));
+            const diventeràAttiva = !schedaTarget.isAttiva;
+            
+            schede.forEach(s => s.isAttiva = false); // Resetta tutte
+            if(diventeràAttiva) schedaTarget.isAttiva = true;
+            
+            salvaDati();
+            renderListaSchede();
         }
 
         function costruisciVistaEsecuzione(schedaId, giornoId) {
@@ -1276,7 +1330,7 @@
                     </button>`;
                 }
 
-                let alertNote = es.note ? `<div style="background: rgba(255, 204, 0, 0.1); border-left: 3px solid var(--primary); padding: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text);"><strong>Nota:</strong> ${es.note}</div>` : '';
+                let alertNote = `<input type="text" class="exec-note" placeholder="Note per la prossima volta (es. alzare kg, esecuzione pulita...)" value="${es.note ? String(es.note).replace(/"/g, '&quot;') : ''}" style="margin-bottom: 1rem; border: 1.5px solid var(--text); border-left: 4px solid var(--text); background: transparent; font-size: 0.85rem; padding: 0.6rem; border-radius: 0; width: 100%; color: var(--text);">`;
 
                 html += `<div class="workout-card active-exercise" id="exec-${index}" data-categoria="${es.categoria}" data-target-serie="${numSerie}" data-target-rip="${targetRip}" data-recupero="${es.recupero ? String(es.recupero).replace(/"/g, '&quot;') : ''}">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
@@ -1423,7 +1477,11 @@
                 const targetRip = blocco.getAttribute('data-target-rip');
                 const isCardio = categoria === 'riscaldamento' || categoria === 'post_allenamento';
                 const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
-                
+                const noteInput = blocco.querySelector('.exec-note');
+                if (noteInput && allenamentoData.esercizi[index]) {
+                    allenamentoData.esercizi[index].note = noteInput.value.trim();
+                }
+
                 const serieEseguite = [];
 
                 if (isCardio) {
@@ -1466,6 +1524,7 @@
 
             diario.unshift(record);
             salvaDiario();
+            salvaDati();
             localStorage.removeItem('allenamentoInCorso');
             pulisciTimerAttivi();
             navigate('storico');
@@ -1545,7 +1604,10 @@
                     }).join(' ');
                     
                     html += `<div style="display:flex; flex-direction:column; gap:0.4rem;">
-                                <strong style="font-size:0.95rem;">${es.nome}${intentLog}</strong>
+                                <strong style="font-size:0.95rem;">${es.nome}
+                                    <button class="btn-img-preview" style="width:24px; height:24px; padding:0; margin-left:6px; vertical-align:middle;" onclick="apriModalImmagine('${es.nome.replace(/'/g, "\\'")}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
+                                    ${intentLog}
+                                </strong>
                                 <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">${logSerie}</div>
                              </div>`;
                 });
@@ -1553,6 +1615,312 @@
                 html += `</div></div>`;
                 container.innerHTML += html;
             });
+        }
+
+       // Funzione helper per leggere le date salvate come "GG/MM/AAAA - HH:mm"
+        function parseItalianDate(dateString) {
+            const parts = dateString.split(' - ')[0].split('/');
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+
+        function renderStatistiche() {
+            const container = document.getElementById('stats-content');
+
+            if (diario.length === 0) {
+                container.innerHTML = `
+                    <div style="background: var(--input-bg); padding: 1.5rem; border: 1.5px solid var(--text); text-align: center;">
+                        <p style="margin: 0; font-weight: 600;">Nessun dato. Niente scuse.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Allenati, registra e torna qui.</p>
+                    </div>`;
+                return;
+            }
+
+            const now = new Date();
+            now.setHours(0,0,0,0);
+
+            let sessionsLast30 = 0;
+            let volLast7 = {};
+            let volPrev7 = {};
+            let personalRecords = {};
+
+            const dateAllenamentoSet = new Set();
+
+            let timeLast30 = [];
+            let totalMinsStorico = 0;
+            const totalSessionsStorico = diario.length;
+
+            const parseDurata = (dur) => {
+                if (!dur) return 0;
+                const str = String(dur).trim();
+                if (str.includes(':')) {
+                    const parts = str.split(':').map(Number);
+                    if (parts.length === 3) return parts[0] * 60 + parts[1] + (parts[2] / 60);
+                    if (parts.length === 2) return parts[0] + (parts[1] / 60);
+                }
+                const matchH = str.match(/(\d+)\s*h/i);
+                const matchM = str.match(/(\d+)\s*m/i);
+                if (matchH || matchM) {
+                    let m = 0;
+                    if (matchH) m += parseInt(matchH[1]) * 60;
+                    if (matchM) m += parseInt(matchM[1]);
+                    return m;
+                }
+                return parseFloat(str) || 0;
+            };
+
+            const formatMins = (mins) => {
+                if (!mins || isNaN(mins) || mins === 0) return "-";
+                const h = Math.floor(mins / 60);
+                const m = Math.floor(mins % 60);
+                return h > 0 ? `${h}h ${m}m` : `${m}m`;
+            };
+
+            // Analisi profonda del diario
+            diario.forEach(record => {
+                const recDate = parseItalianDate(record.dataString);
+                recDate.setHours(0,0,0,0);
+
+                dateAllenamentoSet.add(recDate.getTime());
+
+                const diffTime = Math.abs(now - recDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                const sessionMins = parseDurata(record.durata);
+                totalMinsStorico += sessionMins;
+                if (diffDays <= 30 && sessionMins > 0) {
+                    timeLast30.push(sessionMins);
+                }
+
+                // 1. Costanza
+                if (diffDays <= 30) sessionsLast30++;
+
+                // Analisi Esercizi
+                record.eserciziFatti.forEach(es => {
+                    const cat = es.categoria;
+                    const nomeEs = es.nome.toLowerCase();
+                    const isCardio = cat === 'riscaldamento' || cat === 'post_allenamento';
+                    
+                    let volEsercizio = 0;
+                    let maxKgRecord = 0;
+                    let bestRipAtMaxKg = 0;
+
+                    es.serie.forEach(s => {
+                        if(!isCardio) {
+                            const kg = parseFloat(s.kg) || 0;
+                            const rip = parseInt(s.rip) || 0;
+                            volEsercizio += (kg * rip);
+                            
+                            // Logica aggiornata: traccia max peso e relative ripetizioni
+                            if (kg > maxKgRecord) {
+                                maxKgRecord = kg;
+                                bestRipAtMaxKg = rip;
+                            } else if (kg === maxKgRecord && rip > bestRipAtMaxKg) {
+                                // A parità di carico, vince chi ha fatto più ripetizioni
+                                bestRipAtMaxKg = rip;
+                            }
+                        }
+                    });
+
+                    if (!isCardio) {
+                        // 2. Suddivisione Volumi nei due periodi
+                        if (diffDays <= 7) {
+                            volLast7[cat] = (volLast7[cat] || 0) + volEsercizio;
+                        } else if (diffDays > 7 && diffDays <= 14) {
+                            volPrev7[cat] = (volPrev7[cat] || 0) + volEsercizio;
+                        }
+
+                        // 3. Estrazione PR storici (assoluti) includendo le ripetizioni
+                        if (!personalRecords[nomeEs]) {
+                            personalRecords[nomeEs] = { kg: maxKgRecord, rip: bestRipAtMaxKg, data: record.dataString.split(' - ')[0] };
+                        } else if (maxKgRecord > personalRecords[nomeEs].kg) {
+                            personalRecords[nomeEs] = { kg: maxKgRecord, rip: bestRipAtMaxKg, data: record.dataString.split(' - ')[0] };
+                        } else if (maxKgRecord === personalRecords[nomeEs].kg && bestRipAtMaxKg > personalRecords[nomeEs].rip) {
+                            personalRecords[nomeEs] = { kg: maxKgRecord, rip: bestRipAtMaxKg, data: record.dataString.split(' - ')[0] };
+                        }
+                    }
+                });
+            });
+
+            // --- AGGREGAZIONE TEMPI 30GG ---
+            let avgTime30 = 0, minTime30 = 0, maxTime30 = 0;
+            if (timeLast30.length > 0) {
+                avgTime30 = timeLast30.reduce((a, b) => a + b, 0) / timeLast30.length;
+                minTime30 = Math.min(...timeLast30);
+                maxTime30 = Math.max(...timeLast30);
+            }
+
+            // --- COSTRUZIONE UI BRUTALISTA ---
+            let html = '';
+
+            // Blocco 1: Costanza (Testo neutrale + Grafico Brutalista a Blocchi)
+            const isSlacking = sessionsLast30 < 8; 
+            
+            // Costruzione del grafico degli ultimi 30 giorni (Leggibile e Brutalista)
+            let graficoHtml = '<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 1.25rem;">';
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                const isTrained = dateAllenamentoSet.has(d.getTime());
+                
+                // Inversione spietata: il testo scava lo sfondo usando card-bg
+                const bg = isTrained ? 'var(--text)' : 'transparent';
+                const border = isTrained ? 'var(--text)' : 'var(--border)';
+                const textColor = isTrained ? 'var(--card-bg)' : 'var(--text-muted)';
+                const dayNum = d.getDate();
+                
+                graficoHtml += `
+                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: ${bg}; border: 1.5px solid ${border}; color: ${textColor}; font-size: 0.8rem; font-weight: 900; border-radius: 0;" title="${d.toLocaleDateString('it-IT')}">
+                        ${dayNum}
+                    </div>`;
+            }
+            
+            // Calcolo la data di 30 giorni fa per l'etichetta
+            const dataInizio = new Date(now);
+            dataInizio.setDate(dataInizio.getDate() - 29);
+            const labelInizio = dataInizio.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+
+            graficoHtml += `</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.5rem; font-weight: 800; letter-spacing: 0.5px;">
+                <span>${labelInizio}</span>
+                <span>Oggi</span>
+            </div>`;
+
+            html += `
+                <div style="border: 1.5px solid var(--text); padding: 1.25rem; margin-bottom: 1.5rem; background: var(--card-bg);">
+                    <p style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Indice di Costanza (Ultimi 30 giorni)</p>
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem;">
+                        <span style="font-size: 2.5rem; font-weight: 900; line-height: 1; color: var(--text);">${sessionsLast30}</span>
+                        <span style="color: var(--text-muted); font-weight: 600;">sessioni completate</span>
+                    </div>
+                    ${isSlacking ? '<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Media attuale: inferiore a 2 sessioni/settimana.</p>' : '<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Media attuale: ottimale (\u2265 2 sessioni/settimana).</p>'}
+                    
+                    ${graficoHtml}
+                </div>
+            `;
+
+            // Blocco 1.5: Analisi Tempi
+            html += `
+                <div style="border: 1.5px solid var(--text); padding: 1.25rem; margin-bottom: 1.5rem; background: var(--card-bg);">
+                    <p style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Analisi Tempo e Volumi Globali</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Sessioni Totali (Storico)</div>
+                            <div style="font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-top: 0.2rem;">${totalSessionsStorico}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Monte Ore (Storico)</div>
+                            <div style="font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-top: 0.2rem;">${formatMins(totalMinsStorico)}</div>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1.5px dashed var(--border); padding-top: 1rem; display: flex; justify-content: space-between;">
+                        <div style="text-align: left;">
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Min (30gg)</div>
+                            <div style="font-size: 1.1rem; font-weight: 800;">${formatMins(minTime30)}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Media (30gg)</div>
+                            <div style="font-size: 1.1rem; font-weight: 800;">${formatMins(avgTime30)}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Max (30gg)</div>
+                            <div style="font-size: 1.1rem; font-weight: 800;">${formatMins(maxTime30)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Blocco 2: Trend Settimanale 
+            html += `
+                <div style="border: 1.5px solid var(--text); padding: 1.25rem; margin-bottom: 1.5rem; background: var(--card-bg);">
+                    <p style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Trend Volume (Ultimi 7 gg vs Precedenti)</p>
+                    <div style="display: grid; gap: 0;">
+            `;
+            
+            const catKeys = Array.from(new Set([...Object.keys(volLast7), ...Object.keys(volPrev7)]));
+            if(catKeys.length === 0) {
+                html += `<p style="font-size: 0.9rem; color: var(--text-muted);">Nessun dato di volume per le ultime 2 settimane.</p>`;
+            } else {
+                const sortedCats = catKeys.sort((a, b) => (volLast7[b] || 0) - (volLast7[a] || 0));
+                sortedCats.forEach((cat, index) => {
+                    const curr = volLast7[cat] || 0;
+                    const prev = volPrev7[cat] || 0;
+                    let percStr = "";
+                    let colorVar = "var(--text)";
+                    
+                    if (prev === 0 && curr > 0) {
+                        percStr = "+100%";
+                        colorVar = "var(--success)";
+                    } else if (prev > 0) {
+                        const diff = ((curr - prev) / prev) * 100;
+                        const diffFormatted = Math.abs(diff).toFixed(1) + "%";
+                        if (diff > 0) {
+                            percStr = "+" + diffFormatted;
+                            colorVar = "var(--success)";
+                        } else if (diff < 0) {
+                            percStr = "-" + diffFormatted;
+                            colorVar = "var(--danger)";
+                        } else {
+                            percStr = "Invariato";
+                        }
+                    } else {
+                        percStr = "-";
+                    }
+
+                    const borderStyle = index < sortedCats.length - 1 ? 'border-bottom: 1px solid var(--border);' : '';
+
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: transparent; padding: 0.75rem 0; ${borderStyle}">
+                            <strong style="font-size: 0.95rem; text-transform: uppercase;">${cat.replace(/_/g, ' ')}</strong>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1rem; font-weight: 800;">${curr.toLocaleString('it-IT')} Kg</div>
+                                <div style="font-size: 0.8rem; font-weight: 700; color: ${colorVar};">${percStr}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</div></div>`;
+
+            // Blocco 3: Personal Records 
+            html += `
+                <div style="border: 1.5px solid var(--text); padding: 1.25rem; background: var(--card-bg);">
+                    <p style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Massimali (Top Storica)</p>
+            `;
+            
+            const prList = Object.keys(personalRecords)
+                .map(es => ({ nome: es, kg: personalRecords[es].kg, rip: personalRecords[es].rip, data: personalRecords[es].data }))
+                .filter(pr => pr.kg > 0)
+                .sort((a, b) => b.kg - a.kg)
+                .slice(0, 10); 
+
+            if(prList.length === 0) {
+                html += `<p style="font-size: 0.9rem; color: var(--text-muted);">Nessun massimale rilevante registrato.</p>`;
+            } else {
+                html += `<div style="display: grid; gap: 0;">`;
+                prList.forEach((pr, index) => {
+                    const datePR = parseItalianDate(pr.data);
+                    const ageDays = Math.ceil(Math.abs(now - datePR) / (1000 * 60 * 60 * 24));
+                    const alertVecchio = ageDays > 90 ? `<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 800; margin-left: 0.5rem; border: 1px solid var(--border); padding: 0.1rem 0.3rem;">> 90gg</span>` : '';
+
+                    const borderBottom = index < prList.length - 1 ? 'border-bottom: 1px solid var(--border);' : '';
+
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; ${borderBottom}">
+                            <span style="font-size: 0.95rem; font-weight: 700; text-transform: capitalize;">${pr.nome}</span>
+                            <div style="text-align: right;">
+                                <span style="font-size: 1.1rem; font-weight: 900;">${pr.kg} kg <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">x ${pr.rip}</span></span>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">${pr.data}${alertVecchio}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
         async function eliminaRecord(index) {
