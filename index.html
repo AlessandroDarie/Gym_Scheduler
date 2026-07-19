@@ -366,20 +366,12 @@
                 <button class="btn btn-outline btn-small" id="btn-toggle-theme" onclick="toggleTheme()" style="min-width: 70px; font-weight: 900;">ON</button>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <div>
                     <strong style="font-size: 1.1rem; display: block;">Feedback Audio</strong>
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Avviso acustico recupero</span>
                 </div>
                 <button class="btn btn-outline btn-small" id="btn-toggle-audio" onclick="toggleImpostazione('audio')" style="min-width: 70px; font-weight: 900;">ON</button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <div>
-                    <strong style="font-size: 1.1rem; display: block;">Vibrazione</strong>
-                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Feedback aptico recupero</span>
-                </div>
-                <button class="btn btn-outline btn-small" id="btn-toggle-vibrazione" onclick="toggleImpostazione('vibrazione')" style="min-width: 70px; font-weight: 900;">ON</button>
             </div>
 
             <div class="modal-actions">
@@ -443,7 +435,7 @@
         document.documentElement.setAttribute('data-theme', currentTheme);
 
         // --- GESTIONE IMPOSTAZIONI ---
-        let impostazioni = JSON.parse(localStorage.getItem('impostazioniPalestra')) || { audio: true, vibrazione: true };
+        let impostazioni = JSON.parse(localStorage.getItem('impostazioniPalestra')) || { audio: true };
         
         function salvaImpostazioni() {
             localStorage.setItem('impostazioniPalestra', JSON.stringify(impostazioni));
@@ -463,12 +455,6 @@
             btnAudio.style.borderColor = impostazioni.audio ? 'var(--text)' : 'var(--border)';
             btnAudio.style.color = impostazioni.audio ? 'var(--card-bg)' : 'var(--text-muted)';
             btnAudio.style.background = impostazioni.audio ? 'var(--text)' : 'transparent';
-
-            const btnVib = document.getElementById('btn-toggle-vibrazione');
-            btnVib.innerText = impostazioni.vibrazione ? 'ON' : 'OFF';
-            btnVib.style.borderColor = impostazioni.vibrazione ? 'var(--text)' : 'var(--border)';
-            btnVib.style.color = impostazioni.vibrazione ? 'var(--card-bg)' : 'var(--text-muted)';
-            btnVib.style.background = impostazioni.vibrazione ? 'var(--text)' : 'transparent';
         }
 
         function toggleImpostazione(chiave) {
@@ -478,7 +464,6 @@
             
             // Reazione immediata per testare l'hardware
             if (chiave === 'audio' && impostazioni.audio) playBeep();
-            if (chiave === 'vibrazione' && impostazioni.vibrazione && navigator.vibrate) navigator.vibrate([200]);
         }
 
         function apriModalImpostazioni() {
@@ -618,18 +603,15 @@
                     btn.classList.remove('timer-active');
                     btn.classList.add('timer-done');
                     btn.innerHTML = `${timerIcon} <span class="timer-text">GO!</span>`;
+                    
                     // LETTURA IMPOSTAZIONI E TRIGGER HARDWARE
                     if (impostazioni.audio) playBeep();
-                    if (impostazioni.vibrazione && navigator.vibrate) {
-                        // Pattern Brutalista: Vibrazione lunga, pausa, vibrazione lunga
-                        navigator.vibrate([500, 150, 500, 150, 500]); 
-                    }
 
                     const blocco = btn.closest('.active-exercise');
                     if (blocco) {
                         blocco.classList.add('completed');
                         blocco.setAttribute('data-esercizio-done', 'true');
-                        // La spunta viene aggiornata dall'evento in verificaCompletamento, qui triggeriamo solo il progresso
+                        // La spunta viene aggiornata dall'evento in verificaCompletamento
                         aggiornaProgressoAllenamento();
                     }
                     salvaStatoAllenamento();
@@ -1607,15 +1589,17 @@ function mostraDettaglio(id) {
                 eserciziFatti: []
             };
 
-            document.querySelectorAll('#esegui-content .active-exercise').forEach(blocco => {
+            document.querySelectorAll('#esegui-content .active-exercise').forEach((blocco, index) => {
                 const nomeEsercizio = blocco.querySelector('.exec-es-nome').childNodes[0].nodeValue.trim(); 
                 const categoria = blocco.getAttribute('data-categoria');
                 const targetSerie = blocco.getAttribute('data-target-serie');
                 const targetRip = blocco.getAttribute('data-target-rip');
                 const isCardio = categoria === 'riscaldamento' || categoria === 'post_allenamento';
                 const isDone = blocco.getAttribute('data-esercizio-done') === 'true';
+                
                 const noteInput = blocco.querySelector('.exec-note');
-                if (noteInput && allenamentoData.esercizi[index]) {
+                // Guardia strutturale: verifica che tutta la catena dell'oggetto esista
+                if (noteInput && allenamentoData && allenamentoData.esercizi && allenamentoData.esercizi[index]) {
                     allenamentoData.esercizi[index].note = noteInput.value.trim();
                 }
 
@@ -1697,6 +1681,15 @@ function mostraDettaglio(id) {
                 localStorage.removeItem('allenamentoInCorso');
                 pulisciTimerAttivi();
                 navigate('home');
+            }
+        }
+
+        async function eliminaAllenamentoInCorso() {
+            const confermato = await customConfirm("Vuoi scartare definitivamente la sessione in sospeso? I progressi parziali andranno persi.", "Scarta Sessione");
+            if(confermato) {
+                localStorage.removeItem('allenamentoInCorso');
+                pulisciTimerAttivi();
+                renderHome(); // Ricarica istantaneamente la vista facendoti sparire il banner
             }
         }
 
