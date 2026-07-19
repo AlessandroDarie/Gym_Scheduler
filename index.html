@@ -199,8 +199,11 @@
                 <button onclick="navigate('statistiche')" id="nav-statistiche">Stats</button>
             </div>
             <div class="nav-utils">
-                <button id="theme-toggle" onclick="toggleTheme()" title="Cambia Tema" style="background: transparent; border: none;">
-                    <span class="theme-icon"></span>
+                <button onclick="apriModalImpostazioni()" title="Impostazioni" style="background: transparent; border: none; padding: 0.2rem; display: flex;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -353,6 +356,38 @@
         </div>
     </div>
 
+    <!-- Modale Impostazioni -->
+    <div id="modal-impostazioni" class="modal-overlay" onclick="chiudiModalImpostazioni(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem; text-transform: uppercase; border-bottom: 2px solid var(--text); padding-bottom: 0.5rem; font-weight: 900;">Impostazioni App</h3>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                <strong style="font-size: 1.1rem;">Tema Scuro</strong>
+                <button class="btn btn-outline btn-small" id="btn-toggle-theme" onclick="toggleTheme()" style="min-width: 70px; font-weight: 900;">ON</button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                <div>
+                    <strong style="font-size: 1.1rem; display: block;">Feedback Audio</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Avviso acustico recupero</span>
+                </div>
+                <button class="btn btn-outline btn-small" id="btn-toggle-audio" onclick="toggleImpostazione('audio')" style="min-width: 70px; font-weight: 900;">ON</button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <strong style="font-size: 1.1rem; display: block;">Vibrazione</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Feedback aptico recupero</span>
+                </div>
+                <button class="btn btn-outline btn-small" id="btn-toggle-vibrazione" onclick="toggleImpostazione('vibrazione')" style="min-width: 70px; font-weight: 900;">ON</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="chiudiModalImpostazioni(null, true)">Conferma</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- MOTORE MODALI ---
         function customConfirm(message, title = "Attenzione", confirmText = "Conferma", confirmClass = "btn-danger") {
@@ -407,6 +442,56 @@
         const currentTheme = localStorage.getItem('theme') || 'dark'; 
         document.documentElement.setAttribute('data-theme', currentTheme);
 
+        // --- GESTIONE IMPOSTAZIONI ---
+        let impostazioni = JSON.parse(localStorage.getItem('impostazioniPalestra')) || { audio: true, vibrazione: true };
+        
+        function salvaImpostazioni() {
+            localStorage.setItem('impostazioniPalestra', JSON.stringify(impostazioni));
+        }
+
+        function aggiornaUIImpostazioni() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            
+            const btnTheme = document.getElementById('btn-toggle-theme');
+            btnTheme.innerText = isDark ? 'ON' : 'OFF';
+            btnTheme.style.borderColor = isDark ? 'var(--text)' : 'var(--border)';
+            btnTheme.style.color = isDark ? 'var(--card-bg)' : 'var(--text-muted)';
+            btnTheme.style.background = isDark ? 'var(--text)' : 'transparent';
+
+            const btnAudio = document.getElementById('btn-toggle-audio');
+            btnAudio.innerText = impostazioni.audio ? 'ON' : 'OFF';
+            btnAudio.style.borderColor = impostazioni.audio ? 'var(--text)' : 'var(--border)';
+            btnAudio.style.color = impostazioni.audio ? 'var(--card-bg)' : 'var(--text-muted)';
+            btnAudio.style.background = impostazioni.audio ? 'var(--text)' : 'transparent';
+
+            const btnVib = document.getElementById('btn-toggle-vibrazione');
+            btnVib.innerText = impostazioni.vibrazione ? 'ON' : 'OFF';
+            btnVib.style.borderColor = impostazioni.vibrazione ? 'var(--text)' : 'var(--border)';
+            btnVib.style.color = impostazioni.vibrazione ? 'var(--card-bg)' : 'var(--text-muted)';
+            btnVib.style.background = impostazioni.vibrazione ? 'var(--text)' : 'transparent';
+        }
+
+        function toggleImpostazione(chiave) {
+            impostazioni[chiave] = !impostazioni[chiave];
+            salvaImpostazioni();
+            aggiornaUIImpostazioni();
+            
+            // Reazione immediata per testare l'hardware
+            if (chiave === 'audio' && impostazioni.audio) playBeep();
+            if (chiave === 'vibrazione' && impostazioni.vibrazione && navigator.vibrate) navigator.vibrate([200]);
+        }
+
+        function apriModalImpostazioni() {
+            aggiornaUIImpostazioni();
+            document.getElementById('modal-impostazioni').classList.add('active');
+        }
+
+        function chiudiModalImpostazioni(e, forzato = false) {
+            if (forzato || e.target === document.getElementById('modal-impostazioni')) {
+                document.getElementById('modal-impostazioni').classList.remove('active');
+            }
+        }
+
         let activeTimers = {};
         let globalWorkoutTimerInterval = null;
         let globalWorkoutStartTime = null;
@@ -438,6 +523,7 @@
             const newTheme = isDark ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
+            aggiornaUIImpostazioni();
         }
 
         function toggleFullScreen() {
@@ -529,7 +615,12 @@
                     btn.classList.remove('timer-active');
                     btn.classList.add('timer-done');
                     btn.innerHTML = `${timerIcon} <span class="timer-text">GO!</span>`;
-                    playBeep();
+                    // LETTURA IMPOSTAZIONI E TRIGGER HARDWARE
+                    if (impostazioni.audio) playBeep();
+                    if (impostazioni.vibrazione && navigator.vibrate) {
+                        // Pattern Brutalista: Vibrazione lunga, pausa, vibrazione lunga
+                        navigator.vibrate([500, 150, 500, 150, 500]); 
+                    }
 
                     const blocco = btn.closest('.active-exercise');
                     if (blocco) {
