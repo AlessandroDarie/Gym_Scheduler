@@ -1217,40 +1217,83 @@
                     });
                 }
 
-        function mostraDettaglio(id) {
+function mostraDettaglio(id) {
             const scheda = schede.find(s => String(s.id) === String(id));
             if(!scheda) return;
 
+            // Aggancio il contenitore reale della tua app
             const container = document.getElementById('dettaglio-content');
-            let html = `<h2 style="font-size: 1.5rem;">${scheda.nome}</h2>`;
+            
+            // Il tasto indietro è già gestito nel tuo HTML fisso in <section id="view-dettaglio">
+            let html = `<h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 1.5rem; text-transform: uppercase;">${scheda.nome}</h2>`;
 
-            scheda.allenamenti.forEach(all => {
-                const nomeGiorno = all.nomeGiorno || `Sessione ${all.giorno}`;
-                html += `<div class="workout-card" style="border: 1.5px solid var(--text); background: transparent; border-left: 6px solid var(--primary);">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-                                <h3 style="margin:0; font-size: 1.2rem;">${nomeGiorno}</h3>
-                                <button class="btn btn-success btn-small" onclick="iniziaAllenamento('${scheda.id}', ${all.giorno})">Avvia</button>
-                            </div>
-                            <div style="display: grid; gap: 0.5rem;">`;
-                
-                all.esercizi.forEach(es => {
-                    html += `<div style="border-bottom: 1px solid var(--border); padding: 0.5rem 0;">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <strong style="font-size: 0.95rem;">${es.esercizio}
-                                        <button class="btn-img-preview" style="width:24px; height:24px; padding:0; margin-left:6px; vertical-align:middle;" onclick="apriModalImmagine('${es.esercizio.replace(/'/g, "\\'")}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
-                                    </strong>
-                                    <span style="font-size: 0.8rem; font-weight:700;">${es.serie}x${es.ripetizioni} | ${es.recupero}</span>
+            if (!scheda.allenamenti || scheda.allenamenti.length === 0) {
+                html += `<p style="color: var(--text-muted);">Nessuna sessione presente in questa scheda.</p>`;
+            } else {
+                scheda.allenamenti.forEach((all, idx) => {
+                    const numEsercizi = all.esercizi ? all.esercizi.length : 0;
+                    const bodyId = `session-body-${idx}`;
+                    const nomeGiorno = all.nomeGiorno || `Sessione ${all.giorno}`;
+                    
+                    html += `
+                        <div style="border: 1.5px solid var(--text); border-left: 8px solid var(--primary); background: var(--card-bg); margin-bottom: 1rem; border-radius: 0;">
+                            
+                            <!-- HEADER COMPATTO (Clickabile) -->
+                            <div onclick="const b = document.getElementById('${bodyId}'); b.style.display = b.style.display === 'none' ? 'block' : 'none';" 
+                                 style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                                
+                                <div>
+                                    <strong style="font-size: 1.2rem; text-transform: uppercase; display: block;">${nomeGiorno}</strong>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; margin-top: 0.3rem;">
+                                        ${numEsercizi} ESERCIZI <span style="font-size: 0.7rem; font-weight: 400; opacity: 0.7;">(Clicca per espandere)</span>
+                                    </div>
                                 </div>
-                                <span class="badge" style="background:none; border: 1px solid var(--border);">${es.categoria.replace(/_/g, ' ')}</span>
-                             </div>`;
+
+                                <!-- BOTTONE AVVIA (Isolato e collegato al vero motore) -->
+                                <button class="btn btn-success btn-small" style="padding: 0.6rem 1.25rem; font-size: 0.9rem; border-radius: 4px;" 
+                                        onclick="event.stopPropagation(); iniziaAllenamento('${scheda.id}', ${all.giorno})">Avvia</button>
+                            </div>
+
+                            <!-- LISTA ESERCIZI (Nascosta di default) -->
+                            <div id="${bodyId}" style="display: none; border-top: 1.5px solid var(--text); padding: 0 1.25rem;">
+                    `;
+
+                    if (all.esercizi) {
+                        all.esercizi.forEach((es, i) => {
+                            const isLast = i === all.esercizi.length - 1;
+                            const borderBottom = isLast ? '' : 'border-bottom: 1px solid var(--border);';
+                            const nomeEsercizio = es.esercizio || 'Sconosciuto';
+                            
+                            const imgBtn = `<button class="btn-img-preview" style="width:24px; height:24px; padding:0; margin-left:6px; vertical-align:middle; background:transparent; border:none; color:var(--text-muted); cursor:pointer;" onclick="event.stopPropagation(); apriModalImmagine('${nomeEsercizio.replace(/'/g, "\\'")}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`;
+                            
+                            html += `
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 1.25rem 0; ${borderBottom}">
+                                    <div>
+                                        <strong style="font-size: 1rem; text-transform: lowercase;">${nomeEsercizio}${imgBtn}</strong>
+                                        <div style="margin-top: 0.5rem;">
+                                            <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border: 1px solid var(--border); padding: 0.2rem 0.4rem; color: var(--text-muted);">${es.categoria ? es.categoria.replace(/_/g, ' ') : 'Varie'}</span>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 0.95rem; font-weight: 800; text-align: right;">
+                                        ${es.serie}x${es.ripetizioni || '1'} <span style="color: var(--text-muted); font-weight: 600;">| ${es.recupero || '-'}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
                 });
-                html += `</div></div>`;
-            });
+            }
 
             container.innerHTML = html;
+            
+            // IL ROUTING: fondamentale per far scattare la vista
             navigate('dettaglio');
         }
-
         function modificaScheda(id) {
             const scheda = schede.find(s => String(s.id) === String(id));
             if(!scheda) return;
