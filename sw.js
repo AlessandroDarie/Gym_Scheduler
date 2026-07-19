@@ -1,3 +1,7 @@
+/* 
+  Copyright © 2026 Alessandro Darie. Tutti i diritti riservati.
+  È vietata la riproduzione, distribuzione o modifica senza esplicito consenso.
+*/
 const CACHE_NAME = 'setfree-core-v1';
 
 // File strutturali essenziali da scaricare e blindare subito
